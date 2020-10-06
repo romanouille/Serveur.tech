@@ -1,10 +1,6 @@
 <?php
 require "vendor/autoload.php";
-
-use phpseclib\Net\SSH2;
-use phpseclib\Crypt\RSA;
-use Thedudeguy\Rcon;
-
+require "inc/Captcha.class.php";
 require "inc/Functions.php";
 require "inc/User.class.php";
 
@@ -18,6 +14,8 @@ ob_start();
 register_shutdown_function("renderPage");
 
 $config = parse_ini_file(".env", true);
+
+$captcha = new Captcha($config["recaptcha"]["public_key"], $config["recaptcha"]["private_key"]);
 
 $db = new PDO("pgsql:host={$config["db"]["server"]};dbname={$config["db"]["name"]}", $config["db"]["username"], $config["db"]["password"], [PDO::ATTR_PERSISTENT => true]);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

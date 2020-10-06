@@ -18,6 +18,10 @@ if (count($_POST) > 0) {
 		$messages[] = "Le code de validation spécifié est incorrect.";
 	}
 	
+	if (!$captcha->check()) {
+		$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
+	}
+	
 	if (empty($messages)) {
 		$user = new User($_SESSION["phone"]);
 		if ($user->getValidationCode() == $_POST["code"]) {
@@ -72,6 +76,10 @@ if (isset($messages) && !empty($messages)) {
 						<form method="post">
 							<div class="col-md-6">
 								<input type="text" name="code" placeholder="Code de validation" value="<?=isset($_POST["code"]) && is_string($_POST["code"]) ? htmlspecialchars($_POST["code"]) : ""?>"><br><br>
+							</div>
+							
+							<div style="margin-bottom:20px">
+								<?=$captcha->create()?>
 							</div>
 							
 							<div class="col-md-6">

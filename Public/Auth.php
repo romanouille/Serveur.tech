@@ -31,6 +31,10 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 			$messages[] = "Votre mot de passe doit se composer d'au minimum 8 caractères et d'au maximum 72 caractères.";
 		}
 		
+		if (!$captcha->check()) {
+			$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
+		}
+		
 		if (empty($messages)) {
 			$user = new User($_POST["phonenumber"]);
 			if ($user->verifyPassword($_POST["password"])) {
@@ -126,6 +130,10 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 			}
 		}
 		
+		if (!$captcha->check()) {
+			$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
+		}
+		
 		if (empty($messages)) {
 			$userId = User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);
 			$_SESSION = [
@@ -165,6 +173,7 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 		<link href="css/colors/pink.css" rel="stylesheet" title="pink" media="none" onload="if(media!='all')media='all'"/>
 		<link href="css/colors/blue.css" rel="stylesheet" title="blue" media="none" onload="if(media!='all')media='all'"/>
 		<link href="css/colors/green.css" rel="stylesheet" title="green" media="none" onload="if(media!='all')media='all'"/>
+		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	</head>
 	<body>
 		<!-- ***** LOADING PAGE ****** -->
@@ -230,15 +239,13 @@ if (isset($messages)) {
 														<label><i class="fas fa-lock"></i></label>
 														<input type="password" name="password" placeholder="Mot de passe" value="<?=isset($_POST["password"]) && is_string($_POST["password"]) ? htmlspecialchars($_POST["password"]) : ""?>" required>
 													</div>
+													<div style="margin-top:20px">
+														<?=$captcha->create()?>
+													</div>
 													<div class="col-md-12 mt-5">
 														<button type="submit" value="login" id="login" class="btn btn-default-yellow-fill mt-0 mb-3 mr-3">Valider <i class="fas fa-lock"></i>
 														</button>
 														<a href="ForgotPassword.php" titie="Mot de passe oublié" class="golink mr-3">Mot de passe oublié ?</a>
-														<ul class="list d-inline">
-															<li>
-																<input name="rememberme" type="checkbox" id="checkbox" class="filter">
-															</li>
-														</ul>
 													</div>
 												</div>
 											</form>
@@ -318,6 +325,10 @@ if (isset($messages)) {
 														<input type="password" name="password2" id="inputNewPassword2" placeholder="Confirmez le mot de passe" value="<?=isset($_POST["password"]) && is_string($_POST["password2"]) ? htmlspecialchars($_POST["password2"]) : ""?>">
 													</div>
 												</div>
+												<div style="margin-top:20px;margin-bottom:20px">
+													<?=$captcha->create()?>
+												</div>
+												
 												<button type="submit" value="Submit" class="btn btn-default-yellow-fill mb-1 disable-on-click spinner-on-click ">Valider</button>
 											</form>
 										</div>

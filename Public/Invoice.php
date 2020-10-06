@@ -56,7 +56,7 @@ $pdf->addLineFormat($cols);
 
 $y    = 109;
 $line = array( "REFERENCE"    => "MC-".$invoice["type"],
-               "DESIGNATION"  => "Serveur Minecraft :\n- {$offers[$invoice["type"]]["ram"]} Go RAM\n- {$offers[$invoice["type"]]["cpu"]} CPU\n- {$offers[$invoice["type"]]["ssd"]} Go SSD",
+               "DESIGNATION"  => "Serveur Minecraft :\n- {$offers[$invoice["type"]]["ram"]} Go RAM\n- {$offers[$invoice["type"]]["cpu"]} coeurs CPU\n- {$offers[$invoice["type"]]["ssd"]} Go SSD",
                "QUANTITE"     => "1",
                "P.U. HT"      => $offers[$invoice["type"]]["price"],
                "MONTANT H.T." => $offers[$invoice["type"]]["price"],

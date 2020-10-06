@@ -160,4 +160,66 @@ class User {
 		
 		return $data;
 	}
+	
+	public function getServersList() : array {
+		global $db;
+		
+		$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetchAll();
+		if (empty($data)) {
+			return [];
+		}
+		
+		$result = [];
+		
+		foreach ($data as $value) {
+			$result[] = [
+				"id" => (int)$value["id"],
+				"ip" => trim($value["ip"]),
+				"type" => (int)$value["type"],
+				"expiration" => (int)$value["expiration"]
+			];
+		}
+		
+		return $result;
+	}
+	
+	public function getInvoicesList() : array {
+		global $db;
+		
+		$query = $db->prepare("SELECT id, type, price, microtime FROM users_invoices WHERE owner = :owner");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetchAll();
+		if (empty($data)) {
+			return [];
+		}
+		
+		$result = [];
+		
+		foreach ($data as $value) {
+			$result[] = [
+				"id" => (int)$value["id"],
+				"type" => (int)$value["type"],
+				"price" => (float)$value["price"],
+				"timestamp" => (int)substr($value["microtime"], 0, -4)
+			];
+		}
+		
+		return $result;
+	}
+	
+	public function hasServer(int $serverId) : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE id = :id AND owner = :owner");
+		$query->bindValue(":id", $serverId, PDO::PARAM_INT);
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["nb"] == 1;
+	}
 }

@@ -505,7 +505,7 @@ function addTVAs($prixHt)
     $this->SetXY( $re, $y1+5 );
     $this->Cell( 17,4, sprintf("%0.2F", $prixHt), '', '', 'R');
     $this->SetXY( $re, $y1+10 );
-    $this->Cell( 17,4, "0%", '', '', 'R');
+    $this->Cell( 17,4, "0", '', '', 'R');
     $this->SetXY( $re, $y1+14.8 );
     $this->Cell( 17,4, sprintf("%0.2F", $prixHt), '', '', 'R');
 }
