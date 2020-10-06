@@ -7,7 +7,7 @@ require "inc/SMS.class.php";
 
 $showResetContent = false;
 
-if (isset($_SESSION["2fa"])) {
+if (isset($user)) {
 	header("Location: /");
 	exit;
 }
@@ -83,7 +83,7 @@ if (count($_POST) > 0) {
 	}
 }
 
-require "inc/Start.php";
+require "inc/Layout/Start.php";
 ?>
 <!-- ***** BANNER ***** -->
 <div class="top-header exapath-w">
@@ -159,4 +159,4 @@ if ($showResetContent) {
 	</div>
 </section>
 <?php
-require "inc/End.php";
+require "inc/Layout/End.php";

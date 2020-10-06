@@ -14,6 +14,9 @@
 		<script defer src="js/swiper.min.js"></script>
 		<script src="js/wow.min.js"></script>
 		<script src="js/typed.js"></script>
+		<script defer src="js/filter.js"></script>
+		<script defer src="js/sidebar.js"></script>
+		<script defer src="js/scripts.min.js"></script>
 		<script>new WOW().init();</script>
 		<script defer src="js/scripts.min.js"></script>
 		<script>

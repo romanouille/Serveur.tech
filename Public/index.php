@@ -3,7 +3,7 @@ set_include_path("../");
 chdir("../");
 require "inc/Init.php";
 
-require "inc/Start.php";
+require "inc/Layout/Start.php";
 ?>
 <!-- ***** SLIDER ***** -->
 <section id="owl-demo" class="owl-carousel owl-theme scrollme">
@@ -221,4 +221,4 @@ require "inc/Start.php";
 	</div>
 </section>
 <?php
-require "inc/End.php";
+require "inc/Layout/End.php";

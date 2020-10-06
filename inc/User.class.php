@@ -90,4 +90,74 @@ class User {
 		
 		return $query->execute();
 	}
+	
+	public function createPayment(string $paymentId, int $offerType) : bool {
+		global $db;
+		
+		$query = $db->prepare("INSERT INTO users_payments(payment_id, offer_type) VALUES(:payment_id, :offer_type)");
+		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
+		$query->bindValue(":offer_type", $offerType, PDO::PARAM_INT);
+		
+		return $query->execute();
+	}
+	
+	public function getPaymentOfferType(string $paymentId) : int {
+		global $db;
+		
+		$query = $db->prepare("SELECT offer_type FROM users_payments WHERE payment_id = :payment_id");
+		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		if (empty($data)) {
+			return 0;
+		}
+		
+		$query = $db->prepare("DELETE FROM users_payments WHERE payment_id = :payment_id");
+		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
+		$query->execute();
+		
+		return $data["offer_type"];
+	}
+	
+	public function getId() : int {
+		global $db;
+		
+		$query = $db->prepare("SELECT id FROM users WHERE phone = :phone");
+		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["id"];
+	}
+	
+	public function createInvoice(int $type, float $price) : int {
+		global $db;
+		
+		$query = $db->prepare("INSERT INTO users_invoices(owner, type, price, microtime) VALUES(:owner, :type, :price, ".str_replace(".", "", microtime(1)).")");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->bindValue(":type", $type, PDO::PARAM_INT);
+		$query->bindValue(":price", $price, PDO::PARAM_STR);
+		$query->execute();
+		
+		return $db->lastInsertId();
+	}
+	
+	public function getInvoice(int $id) : array {
+		global $db;
+		
+		$query = $db->prepare("SELECT type, price, microtime FROM users_invoices WHERE id = :id AND owner = :owner");
+		$query->bindValue(":id", $id, PDO::PARAM_INT);
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		if (empty($data)) {
+			return [];
+		}
+		
+		$data = array_map("trim", $data);
+		
+		return $data;
+	}
 }

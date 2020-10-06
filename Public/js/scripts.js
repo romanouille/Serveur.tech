@@ -5,7 +5,7 @@ Author: inebur (Rúben Rodrigues)
 Author URI: http://inebur.com/
 Author Envato: https://themeforest.net/user/inebur
 Copyright: 2020 inebur
-Version: 2.1.4
+Version: 2.1.6
 -------------------------------------------------------------------*/
 document.addEventListener('DOMContentLoaded', function() {
     "use strict";

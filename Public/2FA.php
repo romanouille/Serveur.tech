@@ -30,7 +30,7 @@ if (count($_POST) > 0) {
 	}
 }
 
-require "inc/Start.php";
+require "inc/Layout/Start.php";
 ?>
 <!-- ***** BANNER ***** -->
 <div class="top-header exapath-w">
@@ -86,4 +86,4 @@ if (isset($messages) && !empty($messages)) {
 	</div>
 </section>
 <?php
-require "inc/End.php";
+require "inc/Layout/End.php";

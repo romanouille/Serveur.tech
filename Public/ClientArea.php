@@ -4,12 +4,14 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($_SESSION["2fa"]) || !$_SESSION["2fa"]) {
+if (!isset($user) || !$_SESSION["2fa"]) {
+	$_SESSION = [];
+	
 	header("Location: /Auth.php");
 	exit;
 }
 
-require "inc/Start.php";
+require "inc/Layout/Start.php";
 ?>
 <!-- ***** BANNER ***** -->
 <div class="top-header exapath-w">
@@ -52,4 +54,4 @@ require "inc/Start.php";
 	</div>
 </section>
 <?php
-require "inc/End.php";
+require "inc/Layout/End.php";

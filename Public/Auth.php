@@ -5,7 +5,12 @@ chdir("../");
 require "inc/Init.php";
 require "inc/SMS.class.php";
 
-if (!empty($_SESSION)) {
+if (isset($user)) {
+	if (!$_SESSION["2fa"]) {
+		header("Location: /2FA.php");
+		exit;
+	}
+	
 	header("Location: /");
 	exit;
 }
@@ -30,13 +35,19 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 			$user = new User($_POST["phonenumber"]);
 			if ($user->verifyPassword($_POST["password"])) {
 				$_SESSION = [
-					"phone" => $_POST["phonenumber"],
+					"phone" => (string)$_POST["phonenumber"],
+					"userId" => $user->getId(),
 					"2fa" => false
 				];
 				
-				$user->sendSmsCode();				
-				header("Location: /2FA.php");
-				exit;
+				if ($user->sendSmsCode()) {
+					header("Location: /2FA.php");
+					exit;
+				} else {
+					$_SESSION["2fa"] = true;
+					header("Location: /ClientArea.php");
+					exit;
+				}
 			} else {
 				$messages[] = "Les identifiants spécifiés sont incorrects.";
 			}
@@ -116,9 +127,10 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 		}
 		
 		if (empty($messages)) {
-			User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);
+			$userId = User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);
 			$_SESSION = [
-				"phone" => $_POST["phonenumber"],
+				"phone" => (string)$_POST["phonenumber"],
+				"userId" => $userId,
 				"2fa" => false
 			];
 			
