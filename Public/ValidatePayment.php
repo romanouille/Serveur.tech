@@ -23,8 +23,8 @@ if (!isset($_GET["PayerID"]) || !is_string($_GET["PayerID"]) || empty(trim($_GET
 	exit;
 }
 
-$type = $user->getPaymentOfferType($_GET["paymentId"]);
-if ($type == 0) {
+$paymentData = $user->getPaymentData($_GET["paymentId"]);
+if (empty($paymentData)) {
 	http_response_code(400);
 	require "inc/Pages/Error.php";
 	exit;
@@ -32,14 +32,23 @@ if ($type == 0) {
 
 $paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);
 $result = $paypal->validatePayment($_GET["paymentId"], $_GET["PayerID"]);
+$isRenew = false;
 
 if ($result) {
-	if (Server::isAvailable($type) && Server::create($type, $_SESSION["phone"])) {
-		$user->createInvoice($type, $offers[$type]["price"]);
+	if ($paymentData["server_id"] == 0) {
+		if (Server::isAvailable($paymentData["offer_type"]) && Server::create($paymentData["offer_type"], $_SESSION["phone"])) {
+			$user->createInvoice($paymentData["offer_type"], $offers[$paymentData["offer_type"]]["price"]);
+		} else {
+			http_response_code(500);
+			require "inc/Pages/Error.php";
+			exit;
+		}
 	} else {
-		http_response_code(500);
-		require "inc/Pages/Error.php";
-		exit;
+		$server = new Server($paymentData["server_id"]);
+		$serverConfig = $server->getConfig();
+		$server->renew();
+		$user->createInvoice($serverConfig["type"], $offers[$serverConfig["type"]]["price"]);
+		$isRenew = true;
 	}
 }
 
@@ -69,9 +78,15 @@ require "inc/Layout/Start.php";
 			
 <?php
 if ($result) {
+	if (!$isRenew) {
 ?>
 				Votre serveur a été créé. <a href="/ClientArea.php" title="Espace client">Cliquez ici pour accéder à l'espace client.</a>
 <?php
+	} else {
+?>
+				Votre serveur a été renouvelé. <a href="/ClientArea.php" title="Espace client">Cliquez ici pour accéder à l'espace client.</a>
+<?php
+	}
 } else {
 ?>
 				Le paiement a échoué. <a href="/" title="Accueil">Cliquez ici pour retourner à la page d'accueil.</a>

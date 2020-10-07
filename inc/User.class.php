@@ -91,33 +91,39 @@ class User {
 		return $query->execute();
 	}
 	
-	public function createPayment(string $paymentId, int $offerType) : bool {
+	public function createPayment(string $paymentId, int $offerType, int $serverId = 0) : bool {
 		global $db;
 		
-		$query = $db->prepare("INSERT INTO users_payments(payment_id, offer_type) VALUES(:payment_id, :offer_type)");
+		$query = $db->prepare("INSERT INTO users_payments(payment_id, offer_type, server_id) VALUES(:payment_id, :offer_type, :server_id)");
 		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
 		$query->bindValue(":offer_type", $offerType, PDO::PARAM_INT);
+		$query->bindValue(":server_id", $serverId, PDO::PARAM_INT);
 		
 		return $query->execute();
 	}
 	
-	public function getPaymentOfferType(string $paymentId) : int {
+	public function getPaymentData(string $paymentId) : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT offer_type FROM users_payments WHERE payment_id = :payment_id");
+		$query = $db->prepare("SELECT offer_type, server_id FROM users_payments WHERE payment_id = :payment_id");
 		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
 		$query->execute();
 		$data = $query->fetch();
 		
 		if (empty($data)) {
-			return 0;
+			return [];
 		}
+		
+		$result = [
+			"offer_type" => (int)$data["offer_type"],
+			"server_id" => (int)$data["server_id"]
+		];
 		
 		$query = $db->prepare("DELETE FROM users_payments WHERE payment_id = :payment_id");
 		$query->bindValue(":payment_id", $paymentId, PDO::PARAM_STR);
 		$query->execute();
 		
-		return $data["offer_type"];
+		return $result;
 	}
 	
 	public function getId() : int {

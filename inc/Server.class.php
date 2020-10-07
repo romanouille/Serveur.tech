@@ -118,4 +118,19 @@ class Server {
 		
 		return $data["nb"] >= 1;
 	}
+	
+	public function renew() : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT expiration FROM servers WHERE id = :id");
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		$query->execute();
+		$data = $query->fetch();
+		
+		$query = $db->prepare("UPDATE servers SET expiration = :expiration WHERE id = :id");
+		$query->bindValue(":expiration", strtotime("+1 month", $data["expiration"]), PDO::PARAM_INT);
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		
+		return $query->execute();
+	}
 }
