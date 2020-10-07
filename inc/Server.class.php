@@ -50,7 +50,8 @@ class Server {
 			"spawn-npcs" => (bool)$data["spawn-npcs"],
 			"spawn-monsters" => (bool)$data["spawn-monsters"],
 			"spawn-animals" => (bool)$data["spawn-animals"],
-			"hardcore" => (bool)$data["hardcore"]
+			"hardcore" => (bool)$data["hardcore"],
+			"version" => (string)$data["version"]
 		];
 		
 		return $result;

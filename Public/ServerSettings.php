@@ -344,6 +344,22 @@ if (isset($messages)) {
 ?>
 					<form method="post" class="form">
 						<div class="form-group row">
+							<label class="col-xl-3 col-lg-3 col-form-label text-right">Version</label>
+							<div class="col-lg-9 col-xl-6">
+								<select name="version" class="form-control">
+<?php
+foreach ($serversVersions as $type=>$versions) {
+	foreach ($versions as $version) {
+?>
+								<option value="<?=$type?>_<?=$version?>"<?=$config["version"] == $type."_".$version ? " selected" : ""?>><?=$type?> <?=$version?></option>
+<?php
+	}
+}
+?>								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
 							<label class="col-xl-3 col-lg-3 col-form-label text-right">MOTD</label>
 							<div class="col-lg-9 col-xl-6">
 								<input class="form-control form-control-lg form-control-solid" type="text" name="motd" value="<?=htmlspecialchars($config["motd"])?>" required>
@@ -518,7 +534,7 @@ if (isset($messages)) {
 						<div class="form-group row">
 							<label class="col-xl-3 col-lg-3 col-form-label text-right"></label>
 							<div class="col-lg-9 col-xl-6">
-								<input type="submit" class="btn btn-light-primary font-weight-bold btn-sm">
+								<input type="submit" class="btn btn-light-primary font-weight-bold btn-sm" onclick="this.disabled=true;document.getElementsByTagName('form')[0].submit()">
 							</div>
 						</div>
 					</form>
