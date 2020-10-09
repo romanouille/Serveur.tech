@@ -19,3 +19,14 @@ function normalizeString(string $string, string $whitelist = "abcdefghijklmnopqr
 	
 	return $result;
 }
+
+function random(int $length) : string {
+	$chars = str_split("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+	$result = "";
+	
+	for ($i = 1; $i <= $length; $i++) {
+		$result .= $chars[rand(0, count($chars)-1)];
+	}
+	
+	return $result;
+}

@@ -3,7 +3,6 @@ set_include_path("../");
 chdir("../");
 
 require "inc/Init.php";
-require "inc/MinecraftServer.class.php";
 require "inc/Server.class.php";
 
 if (!isset($user) || !$_SESSION["2fa"]) {
@@ -123,12 +122,24 @@ if (count($_POST) > 0) {
 		$messages[] = "Vous devez spécifier si le mode hardcore est activé ou non.";
 	}
 	
+	if (!isset($_POST["rcon-password"]) || !is_string($_POST["rcon-password"]) || empty(trim($_POST["rcon-password"]))) {
+		$messages[] = "Vous devez spécifier le mot de passe RCON.";
+	} else {
+		$_POST["rcon-password"] = normalizeString($_POST["rcon-password"], "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+		if (empty($_POST["rcon-password"])) {
+			$messages[] = "Le mot de passe RCON doit être composé uniquement de caractères alphanumériques.";
+		} elseif (strlen($_POST["rcon-password"]) > 32) {
+			$messages[] = "Le mot de passe RCON doit se composer d'au maximum 32 caractères.";
+		}
+	}
+	
 	if (!$captcha->check()) {
 		$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
 	}
 	
 	if (empty($messages)) {
-		$server->updateServerProperties($_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
+		$server = new Server($_GET["id"], true);
+		$server->updateServerProperties($_POST["rcon-password"], $_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
 		
 		$messages[] = "Les paramètres ont été enregistrés.";
 	}
@@ -151,7 +162,7 @@ require "inc/Layout/Panel/Start.php";
 						<div class="mr-3">
 							<!--begin::Name-->
 							<a href="#" class="d-flex align-items-center text-dark text-hover-primary font-size-h5 font-weight-bold mr-3">
-							VPS #123 <i class="flaticon2-correct text-success icon-md ml-2"></i>
+							Serveur #<?=$_GET["id"]?>
 							</a>
 							<!--end::Name-->
 							<!--begin::Contacts-->
@@ -167,7 +178,7 @@ require "inc/Layout/Panel/Start.php";
 										</svg>
 										<!--end::Svg Icon-->
 									</span>
-									France
+									<?=$offers[$config["type"]]["location"]?>
 								</a>
 							</div>
 							<!--end::Contacts-->
@@ -521,6 +532,13 @@ foreach ($serversVersions as $type=>$versions) {
 									<option value="1"<?=$config["hardcore"] ? " selected" : ""?>>Activé</option>
 									<option value="0"<?=!$config["hardcore"] ? " selected" : ""?>>Désactivé</option>
 								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-xl-3 col-lg-3 col-form-label text-right">Mot de passe RCON</label>
+							<div class="col-lg-9 col-xl-6">
+								<input class="form-control form-control-lg form-control-solid" type="text" name="rcon-password" value="<?=htmlspecialchars($config["rcon_password"])?>" required>
 							</div>
 						</div>
 						
