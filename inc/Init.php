@@ -10,10 +10,12 @@ if (php_sapi_name() != "cli") {
 	session_name("session");
 	session_set_cookie_params(31536000, "/", $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"] == 443, true);
 	session_start();
+	
+	ob_start();
+	register_shutdown_function("renderPage");
+	
+	$token = sha1(session_name());
 }
-
-ob_start();
-register_shutdown_function("renderPage");
 
 $config = parse_ini_file(".env", true);
 

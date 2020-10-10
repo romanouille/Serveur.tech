@@ -12,12 +12,12 @@ class Server {
 		}
 		
 		if (!empty($rconPassword)) {
-			$this->rcon = new Thedudeguy\Rcon($ip, 25575, $rconPassword, 10);
+			$this->rcon = new Thedudeguy\Rcon($this->ip, 25575, $rconPassword, 3);
 			$this->rcon->connect();
 		}
 	}
 	
-	private function sshAuth() {
+	public function sshAuth() {
 		$this->ssh = new phpseclib\Net\SSH2($this->ip);
 		$key = new phpseclib\Crypt\RSA();
 		$key->setPassword(file_get_contents("Auth/Password"));
@@ -30,13 +30,13 @@ class Server {
 	}
 	
 	public function changeVersion(string $type, string $version, bool $zip = false) {
-		global $config;
+		global $config, $offers, $db;
 		
 		if ($this->isStarted()) {
 			$this->stop();
 		}
 		
-		$storageServer = $config["config"]["storage_server"];
+		$storageServer = $offers[$this->getServerType()]["price"] > 0 ? $config["storage"]["paying_servers"] : $config["storage"]["free_servers"];
 		
 		if (!$zip) {
 			$this->ssh->exec("wget -O server.jar http://$storageServer/Minecraft/Versions/$type/$version.jar");
@@ -49,17 +49,17 @@ class Server {
 		$this->ssh->exec("echo eula=true >> eula.txt");
 		
 		$this->start();
+		
+		$query = $db->prepare("UPDATE servers SET version = :version WHERE id = :id");
+		$query->bindValue(":version", $type."_".$version, PDO::PARAM_STR);
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		$query->execute();
 	}
 	
 	public function start() {
-		global $db, $offers;
+		global $offers;
 		
-		$query = $db->prepare("SELECT type FROM servers WHERE id = :id");
-		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
-		$query->execute();
-		$serverType = (int)$query->fetch()["type"];
-		
-		$this->ssh->exec("screen -dmS minecraft java -Xms512M -Xmx".(1024*$offers[$serverType]["ram"])."M -jar server.jar");
+		$this->ssh->exec("screen -dmS minecraft java -Xms512M -Xmx".(1024*$offers[$this->getServerType()]["ram"])."M -jar server.jar");
 	}
 	
 	public function stop() {
@@ -183,8 +183,7 @@ class Server {
 		
 		$this->ssh->exec("rm -R ~/*");
 		$config = $this->getConfig();
-		$newSshPassword = random(32);
-		$this->ssh->exec("echo -e \"{$config["ssh_password"]}\n$newSshPassword\n$newSshPassword\" | passwd user");
+		$this->resetSshPassword();
 		
 		$query = $db->prepare("DELETE FROM servers WHERE id = :id");
 		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
@@ -202,7 +201,43 @@ class Server {
 		$this->updateServerProperties($newRconPassword);
 		$this->changeVersion("Spigot", "1.16.3");
 	}
+	
+	public function resetSshPassword() {
+		global $db;
 		
+		$currentPassword = $this->getSshPassword();
+		$newSshPassword = random(32);
+		$this->ssh->exec("echo -e \"$currentPassword\n$newSshPassword\n$newSshPassword\" | passwd user");
+		
+		$query = $db->prepare("UPDATE servers SET ssh_password = :ssh_password WHERE id = :id");
+		$query->bindValue(":ssh_password", $newSshPassword, PDO::PARAM_STR);
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		$query->execute();
+	}
+	
+	public function loadConsole() : string {
+		return $this->ssh->exec("tail -100 ~/logs/latest.log");
+	}
+	
+	public function getServerType() : int {
+		global $db;
+		
+		$query = $db->prepare("SELECT type FROM servers WHERE id = :id");
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		$query->execute();
+		
+		return (int)$query->fetch()["type"];
+	}
+	
+	public function getRconPassword() : string {
+		global $db;
+		
+		$query = $db->prepare("SELECT rcon_password FROM servers WHERE id = :id");
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		$query->execute();
+		
+		return (string)$query->fetch()["rcon_password"];
+	}
 	
 	public function exists() : bool {
 		global $db;
