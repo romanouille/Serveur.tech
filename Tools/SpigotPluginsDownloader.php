@@ -9,9 +9,9 @@ curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($curl, CURLOPT_ENCODING, "gzip");
 curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36");
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_COOKIE, "cf_clearance=b6ec352128a0929a153a036cdf27a47fa78069fb-1602345187-0-1z3242204dz1fba760bza4101264-150");
+curl_setopt($curl, CURLOPT_COOKIE, "cf_clearance=98799155bed93294835a21a26636a990b4ec3c94-1602441873-0-1z3242204dz1fba760bza4101264-150");
 
-for ($i = 1; $i <= 2285; $i++) {
+for ($i = 2095; $i <= 2285; $i++) {
 	curl_setopt($curl, CURLOPT_URL, "https://www.spigotmc.org/resources/categories/spigot.4/?page=$i");
 	$page = curl_exec($curl);
 	
@@ -19,10 +19,11 @@ for ($i = 1; $i <= 2285; $i++) {
 	$urls = $urls[1];
 	
 	preg_match_all("`<div class=\"tagLine\">\n(.+)</div>`isU", $page, $descriptions);
-	$descriptions = array_map(function($a) { return html_entity_decode($a, ENT_HTML5); }, array_map("trim", $descriptions[1]));
+	$descriptions = array_map(function($a) { return html_entity_decode(html_entity_decode($a, ENT_HTML5), ENT_QUOTES); }, array_map("trim", $descriptions[1]));
 	
 	foreach ($urls as $id=>$url) {
 		$jarName = urldecode(explode("/", $url)[1]);
+		$pluginId = @end(explode(".", $jarName));
 		
 		echo "-> $jarName (Page $i)\n"; 
 		
@@ -31,13 +32,16 @@ for ($i = 1; $i <= 2285; $i++) {
 		$page = curl_exec($curl);
 		
 		preg_match("`<h1>(.+) <span class=\"muted\">`isU", $page, $name);
-		$name = html_entity_decode(urldecode($name[1]), ENT_HTML5);
+		$name = html_entity_decode(html_entity_decode(urldecode($name[1]), ENT_HTML5), ENT_QUOTES);
 		
 		preg_match("`<ul class=\"plainList\">(.+)</ul>`isU", $page, $versions);
 		$versions = explode(",", str_replace("<li>", "", str_replace("</li>", ",", isset($versions[1]) ? $versions[1] : "")));
 		unset($versions[count($versions)-1]);
 		
 		preg_match("`<label class=\"downloadButton \">\n<a href=\"(.+)\" class=\"inner\">`isU", $page, $downloadLink);
+		if (!isset($downloadLink[1])) {
+			continue;
+		}
 		$downloadLink = $downloadLink[1];
 		
 		curl_setopt($curl, CURLOPT_URL, "https://www.spigotmc.org/$downloadLink");
@@ -54,20 +58,25 @@ for ($i = 1; $i <= 2285; $i++) {
 			continue;
 		}
 		
-		$query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins WHERE name = :name");
-		$query->bindValue(":name", $name, PDO::PARAM_STR);
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins WHERE jar_name = :jar_name");
+		$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
 		$query->execute();
 		$data = $query->fetch();
 		
 		if ($data["nb"] > 0) {
-			continue;
+			$query = $db->prepare("UPDATE plugins SET jar_name :jar_name, name = :name, description = :description, versions = :versions");
+			$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
+			$query->bindValue(":name", $name, PDO::PARAM_STR);
+			$query->bindValue(":description", $descriptions[$id], PDO::PARAM_STR);
+			$query->bindValue(":versions", implode(", ", $versions), PDO::PARAM_STR);
+		} else {		
+			$query = $db->prepare("INSERT INTO plugins(id, jar_name, name, description, versions) VALUES(:id, :jar_name, :name, :description, :versions)");
+			$query->bindValue(":id", $pluginId, PDO::PARAM_INT);
+			$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
+			$query->bindValue(":name", $name, PDO::PARAM_STR);
+			$query->bindValue(":description", $descriptions[$id], PDO::PARAM_STR);
+			$query->bindValue(":versions", implode(", ", $versions), PDO::PARAM_STR);
+			$query->execute();
 		}
-		
-		$query = $db->prepare("INSERT INTO plugins(jar_name, name, description, versions) VALUES(:jar_name, :name, :description, :versions)");
-		$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
-		$query->bindValue(":name", $name, PDO::PARAM_STR);
-		$query->bindValue(":description", $descriptions[$id], PDO::PARAM_STR);
-		$query->bindValue(":versions", implode(", ", $versions), PDO::PARAM_STR);
-		$query->execute();
 	}
 }

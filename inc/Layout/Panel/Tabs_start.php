@@ -32,8 +32,20 @@
 							<!--end::Contacts-->
 						</div>
 						<div class="my-lg-0 my-1">
-							<a href="#" class="btn btn-sm btn-light-success font-weight-bolder text-uppercase mr-3">Réinstaller</a>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Changer d'offre</a>
+<?php
+if ($server->isStarted()) {
+?>
+							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrer</a>
+							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrage forcé</a>
+							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêter</a>
+							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêt forcé</a>
+<?php
+} else {
+?>
+							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Démarrer</a>
+<?php
+}
+?>
 						</div>
 					</div>
 					<!--end: Title-->

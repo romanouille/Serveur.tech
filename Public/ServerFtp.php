@@ -31,6 +31,9 @@ if (!$user->hasServer($_GET["id"])) {
 	exit;
 }
 
+$server->sshAuth();
+$isStarted = $server->isStarted();
+
 if (count($_POST) > 0) {
 	$messages = [];
 	
@@ -43,10 +46,17 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
+		if ($server->sshAuth()) {
+			$server->resetSshPassword();
+			$messages[] = "Le mot de passe a été regénéré.";
+		} else {
+			$messages[] = "Un problème est survenu pendant la regénération du mot de passe FTP.";
+		}
+	} else {
 		$server->sshAuth();
-		$server->resetSshPassword();
-		$messages[] = "Le mot de passe a été regénéré.";
 	}
+} else {
+	$server->sshAuth();
 }
 
 $config = $server->getConfig();

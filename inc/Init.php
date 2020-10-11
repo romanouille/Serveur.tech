@@ -34,10 +34,17 @@ $countries = [
 
 $offers = [
 	1 => [
-		"ram" => 4,
+		"ram" => 2,
+		"cpu" => 1,
+		"ssd" => 10,
+		"price" => 0,
+		"location" => "Londres"
+	],
+	2 => [
+		"ram" => 16,
 		"cpu" => 4,
-		"ssd" => 20,
-		"price" => 4.99,
+		"ssd" => 40,
+		"price" => 19.99,
 		"location" => "France"
 	]
 ];

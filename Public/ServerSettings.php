@@ -155,12 +155,29 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
-		$server = new Server($_GET["id"], true, $server->getRconPassword());
-		$server->updateServerProperties($_POST["rcon-password"], $_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
-		$server->changeVersion($_POST["version"][0], $_POST["version"][1], in_array($_POST["version"][0], ["Forge"]));
+		$server = new Server($_GET["id"]);
 		
-		$messages[] = "Les paramètres ont été enregistrés.";
+		if ($server->sshAuth()) {
+			$isStarted = $server->isStarted();
+			if ($isStarted) {
+				$server->rconAuth();
+			}
+			
+			$server->updateServerProperties($_POST["rcon-password"], $_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
+			$server->changeVersion($_POST["version"][0], $_POST["version"][1], in_array($_POST["version"][0], ["Forge"]));
+			
+			$messages[] = "Les paramètres ont été enregistrés.";
+		} else {
+			$messages[] = "Un problème est survenu durant la modification des paramètres du serveur.";
+			$isStarted = false;
+		}
+	} else {
+		$server->sshAuth();
+		$isStarted = $server->isStarted();
 	}
+} else {
+	$server->sshAuth();
+	$isStarted = $server->isStarted();
 }
 
 $config = $server->getConfig();

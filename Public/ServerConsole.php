@@ -52,15 +52,29 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
-		$server = new Server($_GET["id"], false, $server->getRconPassword());
-		$server->rcon->sendCommand($_POST["command"]);
-		$messages[] = "La commande a été exécutée.";
-		
-		sleep(3);
+		if ($server->sshAuth()) {
+			$isStarted = $server->isStarted();
+			
+			if ($isStarted) {
+				$server->rconAuth();
+				$server->rcon->sendCommand($_POST["command"]);
+				$messages[] = "La commande a été exécutée.";
+				sleep(3);
+			} else {
+				$messages[] = "Impossible d'envoyer la commande : le serveur est éteint.";
+			}
+		} else {
+			$messages[] = "Un problème est survenu durant l'envoi de la commande.";
+			$isStarted = false;
+		}
+	} else {
+		$server->sshAuth();
+		$isStarted = $server->isStarted();
 	}
+} else {
+	$server->sshAuth();
+	$isStarted = $server->isStarted();
 }
-
-$server->sshAuth();
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";
@@ -88,9 +102,12 @@ if (isset($messages) && !empty($messages)) {
 ?>
 
 	<pre>
-<?=$server->loadConsole()?>
+<?=$isStarted ? $server->loadConsole() : "Le serveur n'est pas démarré."?>
 	</pre>
 	
+<?php
+if ($isStarted) {
+?>
 	<form method="post">
 		<input type="hidden" name="token" value="<?=$token?>">
 		<?=$captcha->create()?><br>
@@ -104,6 +121,9 @@ if (isset($messages) && !empty($messages)) {
 			</div>
 		</div>
 	</form>
+<?php
+}
+?>
 </div>
 
 <?php

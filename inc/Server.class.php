@@ -1,6 +1,6 @@
 <?php
 class Server {
-	public function __construct(int $id, bool $sshAuth = false, string $rconPassword = "") {
+	public function __construct(int $id, bool $sshAuth = false, bool $rconAuth = false) {
 		$this->id = $id;
 		if (!$this->exists()) {
 			return false;
@@ -11,9 +11,8 @@ class Server {
 			$this->sshAuth();
 		}
 		
-		if (!empty($rconPassword)) {
-			$this->rcon = new Thedudeguy\Rcon($this->ip, 25575, $rconPassword, 3);
-			$this->rcon->connect();
+		if ($rconAuth) {
+			$this->rconAuth();
 		}
 	}
 	
@@ -27,6 +26,11 @@ class Server {
 		}
 		
 		return true;
+	}
+	
+	public function rconAuth() {
+		$this->rcon = new Thedudeguy\Rcon($this->ip, 25575, $this->getRconPassword(), 3);
+		$this->rcon->connect();
 	}
 	
 	public function changeVersion(string $type, string $version, bool $zip = false) {
@@ -183,7 +187,7 @@ class Server {
 		
 		$this->ssh->exec("rm -R ~/*");
 		$config = $this->getConfig();
-		$this->resetSshPassword();
+		$newSshPassword = $this->resetSshPassword();
 		
 		$query = $db->prepare("DELETE FROM servers WHERE id = :id");
 		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
@@ -197,6 +201,7 @@ class Server {
 		$query->bindValue(":rcon_password", $newRconPassword, PDO::PARAM_STR);
 		$query->bindValue(":type", $config["type"], PDO::PARAM_INT);
 		$query->execute();
+		$this->id = $db->lastInsertId();
 		
 		$this->updateServerProperties($newRconPassword);
 		$this->changeVersion("Spigot", "1.16.3");
@@ -213,6 +218,8 @@ class Server {
 		$query->bindValue(":ssh_password", $newSshPassword, PDO::PARAM_STR);
 		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
 		$query->execute();
+		
+		return $newSshPassword;
 	}
 	
 	public function loadConsole() : string {
@@ -461,6 +468,33 @@ class Server {
 		
 		foreach ($data as $value) {
 			$result[] = (int)$value["id"];
+		}
+		
+		return $result;
+	}
+	
+	public function searchPlugins(string $text) : array {
+		global $db;
+		
+		$text = str_replace("%", "", $text);
+		if (empty($text)) {
+			return [];
+		}
+		
+		$query = $db->prepare("SELECT id, jar_name, name, description, versions FROM plugins WHERE name ILIKE :text ORDER BY id ASC LIMIT 100");
+		$query->bindValue(":text", "%$text%", PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetchAll();
+		$result = [];
+		
+		foreach ($data as $value) {
+			$result[] = [
+				"id" => (int)$value["id"],
+				"jar_name" => (string)$value["jar_name"],
+				"name" => (string)$value["name"],
+				"description" => (string)$value["description"],
+				"versions" => (string)$value["versions"]
+			];
 		}
 		
 		return $result;

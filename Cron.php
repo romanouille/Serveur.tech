@@ -7,7 +7,7 @@ echo "Loading uninitialized servers list...\n";
 $uninitializedServers = Server::getUninitializedServersList();
 foreach ($uninitializedServers as $serverId) {
 	echo "-> $serverId\n";
-	$server = new Server($serverId);
+	$server = new Server($serverId, true);
 	$server->reset();
 }
 
