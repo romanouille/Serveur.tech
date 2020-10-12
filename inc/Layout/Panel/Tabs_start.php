@@ -10,7 +10,7 @@
 						<div class="mr-3">
 							<!--begin::Name-->
 							<a href="#" class="d-flex align-items-center text-dark text-hover-primary font-size-h5 font-weight-bold mr-3">
-							Serveur #<?=$_GET["id"]?>
+							<?=$config["ip"]?>
 							</a>
 							<!--end::Name-->
 							<!--begin::Contacts-->
@@ -35,34 +35,31 @@
 <?php
 if ($server->isStarted()) {
 ?>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrer</a>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrage forcé</a>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêter</a>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêt forcé</a>
+							<a href="/ServerReboot.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrer</a>
+							<a href="/ServerForcedReboot.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrage forcé</a>
+							<a href="/ServerShutdown.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêter</a>
+							<a href="/ServerForcedShutdown.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Arrêt forcé</a>
 <?php
 } else {
 ?>
-							<a href="#" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Démarrer</a>
+							<a href="/ServerStart.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Démarrer</a>
 <?php
 }
 ?>
+							<a href="/ServerRenew.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-success font-weight-bolder text-uppercase">Renouveler</a>
 						</div>
 					</div>
 					<!--end: Title-->
 					<!--begin: Content-->
 					<div class="d-flex align-items-center flex-wrap justify-content-between">
 						<div class="flex-grow-1 font-weight-bold text-dark-50 py-5 py-lg-2 mr-5">
-							Lorem ipsum dolor sit amet.
+							
 						</div>
 						<div class="d-flex flex-wrap align-items-center py-2">
 							<div class="d-flex align-items-center mr-10">
-								<div class="mr-6">
-									<div class="font-weight-bold mb-2">Date de création</div>
-									<span class="btn btn-sm btn-text btn-light-primary text-uppercase font-weight-bold">3 août 2020</span>
-								</div>
-								<div class="">
+								<div>
 									<div class="font-weight-bold mb-2">Date d'expiration</div>
-									<span class="btn btn-sm btn-text btn-light-danger text-uppercase font-weight-bold">3 septembre 2020</span>
+									<span class="btn btn-sm btn-text btn-light-danger text-uppercase font-weight-bold"><?=date("d/m/Y H:i:s", $config["expiration"])?></span>
 								</div>
 							</div>
 						</div>
@@ -80,8 +77,8 @@ if ($server->isStarted()) {
 					<i class="flaticon-piggy-bank icon-2x text-muted font-weight-bold"></i>
 					</span>
 					<div class="d-flex flex-column text-dark-75">
-						<span class="font-weight-bolder font-size-sm">Coût</span>
-						<span class="font-weight-bolder font-size-h5">2.99<span class="text-dark-50 font-weight-bold">€</span></span>
+						<span class="font-weight-bolder font-size-sm">Prix mensuel</span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["price"]?><span class="text-dark-50 font-weight-bold">€</span></span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -92,7 +89,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">CPU</span>
-						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold">1x</span>2.4GHz</span>
+						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$config["type"]]["cpu"]?>x</span><?=$offers[$config["type"]]["price"] > 0 ? "4" : "2.4"?>GHz</span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -103,7 +100,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">RAM</span>
-						<span class="font-weight-bolder font-size-h5">1<span class="text-dark-50 font-weight-bold"> Go</span></span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["ram"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -114,7 +111,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column flex-lg-fill">
 						<span class="text-dark-75 font-weight-bolder font-size-sm">Stockage</span>
-						<span class="font-weight-bolder font-size-h5">100<span class="text-dark-50 font-weight-bold"> Go</span></span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["ssd"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -142,6 +139,11 @@ if ($server->isStarted()) {
 					<li class="nav-item mr-3">
 						<a class="nav-link<?=$_SERVER["PHP_SELF"] == "/ServerFtp.php" ? " active" : ""?>" href="/ServerFtp.php?id=<?=$_GET["id"]?>">
 							<span class="nav-text font-weight-bold"><i class="flaticon2-files-and-folders icon-1x"></i> FTP</span>
+						</a>
+					</li>
+					<li class="nav-item mr-3">
+						<a class="nav-link<?=$_SERVER["PHP_SELF"] == "/ServerMysql.php" ? " active" : ""?>" href="/ServerMysql.php?id=<?=$_GET["id"]?>">
+							<span class="nav-text font-weight-bold"><i class="fas fa-database" style="font-size:1rem"></i> MySQL</span>
 						</a>
 					</li>
 					<li class="nav-item mr-3">

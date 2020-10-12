@@ -1,5 +1,7 @@
 <?php
 require "inc/Init.php";
+require "vendor/autoload.php";
+require "inc/MariaDB.class.php";
 require "inc/Server.class.php";
 require "inc/SMS.class.php";
 

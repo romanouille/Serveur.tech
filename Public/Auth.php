@@ -41,7 +41,8 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 				$_SESSION = [
 					"phone" => (string)$_POST["phonenumber"],
 					"userId" => $user->getId(),
-					"2fa" => false
+					"2fa" => false,
+					"admin" => $user->isAdmin()
 				];
 				
 				if ($user->sendSmsCode()) {
@@ -139,7 +140,8 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 			$_SESSION = [
 				"phone" => (string)$_POST["phonenumber"],
 				"userId" => $userId,
-				"2fa" => false
+				"2fa" => false,
+				"admin" => false
 			];
 			
 			$user = new User($_POST["phonenumber"]);

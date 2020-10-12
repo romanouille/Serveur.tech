@@ -152,9 +152,14 @@ class User {
 	public function getInvoice(int $id) : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT type, price, microtime FROM users_invoices WHERE id = :id AND owner = :owner");
-		$query->bindValue(":id", $id, PDO::PARAM_INT);
-		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		if (!$_SESSION["admin"]) {
+			$query = $db->prepare("SELECT type, price, microtime FROM users_invoices WHERE id = :id AND owner = :owner");
+			$query->bindValue(":id", $id, PDO::PARAM_INT);
+			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		} else {
+			$query = $db->prepare("SELECT type, price, microtime, owner FROM users_invoices WHERE id = :id");
+			$query->bindValue(":id", $id, PDO::PARAM_INT);
+		}
 		$query->execute();
 		$data = $query->fetch();
 		
@@ -170,8 +175,12 @@ class User {
 	public function getServersList() : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner");
-		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		if (!$_SESSION["admin"]) {
+			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner");
+			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		} else {
+			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE expiration > 0");
+		}
 		$query->execute();
 		$data = $query->fetchAll();
 		if (empty($data)) {
@@ -195,8 +204,13 @@ class User {
 	public function getInvoicesList() : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT id, type, price, microtime FROM users_invoices WHERE owner = :owner");
-		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		if (!$_SESSION["admin"]) {
+			$query = $db->prepare("SELECT id, type, price, microtime FROM users_invoices WHERE owner = :owner");
+			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		} else {
+			$query = $db->prepare("SELECT id, type, price, microtime FROM users_invoices");
+			$query->execute();
+		}
 		$query->execute();
 		$data = $query->fetchAll();
 		if (empty($data)) {
@@ -220,12 +234,58 @@ class User {
 	public function hasServer(int $serverId) : bool {
 		global $db;
 		
-		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE id = :id AND owner = :owner");
-		$query->bindValue(":id", $serverId, PDO::PARAM_INT);
-		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		if (!$_SESSION["admin"]) {
+			$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE id = :id AND owner = :owner");
+			$query->bindValue(":id", $serverId, PDO::PARAM_INT);
+			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		} else {
+			$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE id = :id AND expiration > 0");
+			$query->bindValue(":id", $serverId, PDO::PARAM_INT);
+		}
 		$query->execute();
 		$data = $query->fetch();
 		
 		return $data["nb"] == 1;
+	}
+	
+	public function loadTicket() : array {
+		global $db;
+		
+		$query = $db->prepare("SELECT owner, content, timestamp FROM tickets_messages WHERE (owner = '0' AND recipient = :owner) OR (owner = :owner AND recipient = '0') ORDER BY timestamp DESC LIMIT 20");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetchAll();
+		$result = [];
+		
+		foreach ($data as $value) {
+			$result[] = [
+				"owner" => (string)trim($value["owner"]),
+				"content" => (string)trim($value["content"]),
+				"timestamp" => (int)$value["timestamp"]
+			];
+		}
+		
+		return $result;
+	}
+	
+	public function replyToTicket($message) : bool {
+		global $db;
+		
+		$query = $db->prepare("INSERT INTO tickets_messages(owner, recipient, content, timestamp) VALUES(:owner, '0', :content, ".time().")");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->bindValue(":content", $message, PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	public function isAdmin() : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT admin FROM users WHERE phone = :phone");
+		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["admin"] == 1;
 	}
 }

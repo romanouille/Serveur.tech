@@ -11,7 +11,7 @@ curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64)
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl, CURLOPT_COOKIE, "cf_clearance=98799155bed93294835a21a26636a990b4ec3c94-1602441873-0-1z3242204dz1fba760bza4101264-150");
 
-for ($i = 2095; $i <= 2285; $i++) {
+for ($i = 919; $i <= 2285; $i++) {
 	curl_setopt($curl, CURLOPT_URL, "https://www.spigotmc.org/resources/categories/spigot.4/?page=$i");
 	$page = curl_exec($curl);
 	
@@ -58,17 +58,18 @@ for ($i = 2095; $i <= 2285; $i++) {
 			continue;
 		}
 		
-		$query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins WHERE jar_name = :jar_name");
-		$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins WHERE id = :id");
+		$query->bindValue(":id", $pluginId, PDO::PARAM_INT);
 		$query->execute();
 		$data = $query->fetch();
 		
 		if ($data["nb"] > 0) {
-			$query = $db->prepare("UPDATE plugins SET jar_name :jar_name, name = :name, description = :description, versions = :versions");
+			$query = $db->prepare("UPDATE plugins SET jar_name = :jar_name, name = :name, description = :description, versions = :versions");
 			$query->bindValue(":jar_name", $jarName, PDO::PARAM_STR);
 			$query->bindValue(":name", $name, PDO::PARAM_STR);
 			$query->bindValue(":description", $descriptions[$id], PDO::PARAM_STR);
 			$query->bindValue(":versions", implode(", ", $versions), PDO::PARAM_STR);
+			$query->execute();
 		} else {		
 			$query = $db->prepare("INSERT INTO plugins(id, jar_name, name, description, versions) VALUES(:id, :jar_name, :name, :description, :versions)");
 			$query->bindValue(":id", $pluginId, PDO::PARAM_INT);

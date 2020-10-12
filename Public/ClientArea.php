@@ -95,7 +95,7 @@ if (!empty($servers)) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">CPU</span>
-						<span class="font-weight-bolder font-size-h5"><?=$offers[$server["type"]]["cpu"]?> <span class="text-dark-50 font-weight-bold">coeurs</span></span>
+						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$server["type"]]["cpu"]?>x</span><?=$offers[$server["type"]]["price"] > 0 ? "4" : "2.4"?>GHz</span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -105,7 +105,7 @@ if (!empty($servers)) {
 					<i class="flaticon-file-2 icon-2x text-muted font-weight-bold"></i>
 					</span>
 					<div class="d-flex flex-column text-dark-75">
-						<span class="font-weight-bolder font-size-sm">SSD</span>
+						<span class="font-weight-bolder font-size-sm">Stockage</span>
 						<span class="font-weight-bolder font-size-h5"><?=$offers[$server["type"]]["ssd"]?> <span class="text-dark-50 font-weight-bold">Go</span></span>
 					</div>
 				</div>

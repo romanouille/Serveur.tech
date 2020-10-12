@@ -40,7 +40,7 @@ class Server {
 			$this->stop();
 		}
 		
-		$storageServer = $offers[$this->getServerType()]["price"] > 0 ? $config["storage"]["paying_servers"] : $config["storage"]["free_servers"];
+		$storageServer = $offers[$this->getServerType()]["price"] > 0 ? $config["storage"]["paying_server"] : $config["storage"]["free_server"];
 		
 		if (!$zip) {
 			$this->ssh->exec("wget -O server.jar http://$storageServer/Minecraft/Versions/$type/$version.jar");
@@ -63,11 +63,15 @@ class Server {
 	public function start() {
 		global $offers;
 		
-		$this->ssh->exec("screen -dmS minecraft java -Xms512M -Xmx".(1024*$offers[$this->getServerType()]["ram"])."M -jar server.jar");
+		return $this->ssh->exec("screen -dmS minecraft java -Xms512M -Xmx".(1024*$offers[$this->getServerType()]["ram"])."M -jar server.jar");
 	}
 	
 	public function stop() {
 		return $this->rcon->sendCommand("stop");
+	}
+	
+	public function forcedStop() {
+		return $this->ssh->exec("pkill java");
 	}
 	
 	public function isStarted() : bool {
@@ -179,14 +183,18 @@ class Server {
 	}
 	
 	public function reset() {
-		global $db;
+		global $db, $config, $offers;
 		
 		if ($this->isStarted()) {
+			if (!isset($this->rcon)) {
+				$this->rconAuth();
+			}
+			
 			$this->stop();
 		}
 		
 		$this->ssh->exec("rm -R ~/*");
-		$config = $this->getConfig();
+		$serverConfig = $this->getConfig();
 		$newSshPassword = $this->resetSshPassword();
 		
 		$query = $db->prepare("DELETE FROM servers WHERE id = :id");
@@ -195,11 +203,18 @@ class Server {
 		
 		$newRconPassword = random(32);
 		
-		$query = $db->prepare("INSERT INTO servers(ip, ssh_password, rcon_password, owner, type, expiration) VALUES(:ip, :ssh_password, :rcon_password, '', :type, 0)");
-		$query->bindValue(":ip", $config["ip"], PDO::PARAM_STR);
+		$mariadbHost = $offers[$serverConfig["type"]]["price"] > 0 ? $config["mariadb"]["paying_server"] : $config["mariadb"]["free_server"];
+		$mariadbPassword = random(32);
+		$mariadb = new MariaDB($mariadbHost, "root", $config["mariadb"]["password"]);
+		$mariadb->deleteUser($serverConfig["ip"]);
+		$mariadb->createUser($serverConfig["ip"], $mariadbPassword);
+		
+		$query = $db->prepare("INSERT INTO servers(ip, ssh_password, rcon_password, mysql_password, owner, type, expiration) VALUES(:ip, :ssh_password, :rcon_password, :mysql_password, '', :type, 0)");
+		$query->bindValue(":ip", $serverConfig["ip"], PDO::PARAM_STR);
 		$query->bindValue(":ssh_password", $newSshPassword, PDO::PARAM_STR);
 		$query->bindValue(":rcon_password", $newRconPassword, PDO::PARAM_STR);
-		$query->bindValue(":type", $config["type"], PDO::PARAM_INT);
+		$query->bindValue(":mysql_password", $mariadbPassword, PDO::PARAM_STR);
+		$query->bindValue(":type", $serverConfig["type"], PDO::PARAM_INT);
 		$query->execute();
 		$this->id = $db->lastInsertId();
 		
@@ -296,6 +311,7 @@ class Server {
 			"ip" => (string)$data["ip"],
 			"ssh_password" => (string)$data["ssh_password"],
 			"rcon_password" => (string)$data["rcon_password"],
+			"mysql_password" => (string)$data["mysql_password"],
 			"owner" => (string)$data["owner"],
 			"type" => (int)$data["type"],
 			"expiration" => (int)$data["expiration"],
@@ -354,7 +370,7 @@ class Server {
 	public static function create(int $type, string $owner) : int {
 		global $db;
 		
-		$query = $db->prepare("SELECT id FROM servers WHERE type = :type AND expiration = 0");
+		$query = $db->prepare("SELECT id, ip FROM servers WHERE type = :type AND expiration = 0");
 		$query->bindValue(":type", $type, PDO::PARAM_INT);
 		$query->execute();
 		$data = $query->fetch();
@@ -375,7 +391,7 @@ class Server {
 	public static function isAvailable(int $type) : bool {
 		global $db;
 		
-		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE type = :type AND owner = ''");
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE type = :type AND expiration = 0");
 		$query->bindValue(":type", $type, PDO::PARAM_INT);
 		$query->execute();
 		$data = $query->fetch();
@@ -498,5 +514,21 @@ class Server {
 		}
 		
 		return $result;
+	}
+	
+	public function changeMysqlPassword() : bool {
+		global $db, $config, $offers;
+		
+		$serverConfig = $this->getConfig();
+		$mariadbHost = $offers[$serverConfig["type"]]["price"] > 0 ? $config["mariadb"]["paying_server"] : $config["mariadb"]["free_server"];
+		$mariadbPassword = random(32);
+		$mariadb = new MariaDB($mariadbHost, "root", $config["mariadb"]["password"]);
+		$mariadb->changePassword($serverConfig["ip"], $mariadbPassword);
+		
+		$query = $db->prepare("UPDATE servers SET mysql_password = :mysql_password WHERE id = :id");
+		$query->bindValue(":mysql_password", $mariadbPassword, PDO::PARAM_STR);
+		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
+		
+		return $query->execute();
 	}
 }

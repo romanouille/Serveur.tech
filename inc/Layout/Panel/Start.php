@@ -73,6 +73,21 @@
 								<li class="menu-item">
 									<a href="/Invoices.php" class="menu-link"><span class="menu-text">Factures</span><i class="menu-arrow"></i></a>
 								</li>
+<?php
+if (!$_SESSION["admin"]) {
+?>
+								<li class="menu-item">
+									<a href="/Ticket.php" class="menu-link"><span class="menu-text">Support</span><i class="menu-arrow"></i></a>
+								</li>
+<?php
+} else {
+?>
+								<li class="menu-item">
+									<a href="/AdminTicketsList.php" class="menu-link"><span class="menu-text">Tickets</span><i class="menu-arrow"></i></a>
+								</li>
+<?php
+}
+?>
 							</ul>
 							<!--end::Header Nav-->
 						</div>

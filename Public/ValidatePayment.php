@@ -3,6 +3,7 @@ set_include_path("../");
 chdir("../");
 
 require "inc/Init.php";
+require "inc/MariaDB.class.php";
 require "inc/Paypal.class.php";
 require "inc/Server.class.php";
 
