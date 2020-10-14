@@ -14,7 +14,7 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!$_SESSION["admin"]) {
 	http_response_code(403);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 

@@ -26,11 +26,18 @@ if (!Server::isAvailable($_GET["type"])) {
 }
 
 if (count($_POST) > 0) {
-	$paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);
-	$payment = $paypal->createPayment($offers[$_GET["type"]]["price"], "http".($_SERVER["SERVER_PORT"] == 443 ? "s" : "")."://{$_SERVER["HTTP_HOST"]}/ValidatePayment.php");
-	$user->createPayment($payment["id"], $_GET["type"]);
-	header("Location: {$payment["links"][1]["href"]}");
-	exit;
+	if ($offers[$_GET["type"]]["price"] > 0) {
+		$paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);
+		$payment = $paypal->createPayment($offers[$_GET["type"]]["price"], "http".($_SERVER["SERVER_PORT"] == 443 ? "s" : "")."://{$_SERVER["HTTP_HOST"]}/ValidatePayment.php");
+		$user->createPayment($payment["id"], $_GET["type"]);
+		header("Location: {$payment["links"][1]["href"]}");
+		exit;
+	} else {
+		$paymentId = random(32).microtime(1);
+		$user->createPayment($paymentId, $_GET["type"]);
+		header("Location: /ValidatePayment.php?paymentId=$paymentId&PayerID=x");
+		exit;
+	}
 }
 
 require "inc/Layout/Start.php";
@@ -42,7 +49,7 @@ require "inc/Layout/Start.php";
 			<div class="col-sm-12 col-md-12">
 				<div class="wrapper animateme" data-when="span" data-from="0" data-to="0.75" data-opacity="1" data-translatey="-50">
 					<h1 class="heading">Panier</h1>
-					<h3 class="subheading">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h3>
+					<!--<h3 class="subheading">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h3>-->
 				</div>
 			</div>
 		</div>
@@ -58,7 +65,7 @@ require "inc/Layout/Start.php";
 						<div class="col-md-12 col-lg-12">
 							<div class="wrapper targetDiv sec-grad-white-to-green">
 								<h3>Votre panier</h3>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+								<!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>-->
 								<div class="row">
 									<div class="col-md-12 pt-4">
 										<div class="table-responsive-lg">
@@ -76,7 +83,7 @@ require "inc/Layout/Start.php";
 													<tr>
 														<td>Serveur Minecraft #<?=$_GET["type"]?></td>
 														<td><span class=""><?=$offers[$_GET["type"]]["price"]?>€</span></td>
-														<td><?=$offers[$_GET["type"]]["ram"]?> Mo</td>
+														<td><?=$offers[$_GET["type"]]["ram"]?> Go</td>
 														<td><?=$offers[$_GET["type"]]["cpu"]?></td>
 														<td><?=$offers[$_GET["type"]]["ssd"]?> Go</td>
 													</tr>
@@ -92,7 +99,7 @@ require "inc/Layout/Start.php";
 			</div>
 			<!-- sidebar -->
 			<div class="col-md-12 col-lg-4">
-				<aside id="sidebar" class="mt-120 sidebar sec-bg1">
+				<aside class="mt-120 sidebar sec-bg1">
 					<div class="ordersummary mt-0">
 						<h4>Récapitulatif de la commande</h4>
 						<div class="table-responsive-lg">
@@ -112,7 +119,7 @@ require "inc/Layout/Start.php";
 					</div>
 					<form method="post">
 						<input type="hidden" name="mode" value="2">
-						<button type="submit" class="btn btn-default-yellow-fill mb-3">Commander avec Paypal <i class="fas fa-arrow-alt-circle-right"></i></button>
+						<button type="submit" class="btn btn-default-yellow-fill mb-3">Commander<?=$offers[$_GET["type"]]["price"] > 0 ? " avec Paypal" : ""?> <i class="fas fa-arrow-alt-circle-right"></i></button>
 					</form>
 				</aside>
 			</div>
@@ -120,7 +127,7 @@ require "inc/Layout/Start.php";
 	</div>
 </section>
 <!-- ***** HELP ***** -->
-<section class="services help pt-4 pb-80">
+<!--<section class="services help pt-4 pb-80">
 	<div class="container">
 		<div class="service-wrap">
 			<div class="row">
@@ -166,9 +173,9 @@ require "inc/Layout/Start.php";
 			</div>
 		</div>
 	</div>
-</section>
+</section>-->
 <!-- ***** SMALL MODAL ***** -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+<!--<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -184,6 +191,6 @@ require "inc/Layout/Start.php";
 			</div>
 		</div>
 	</div>
-</div>
+</div>-->
 <?php
 require "inc/Layout/End.php";

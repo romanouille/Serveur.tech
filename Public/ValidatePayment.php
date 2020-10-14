@@ -31,14 +31,28 @@ if (empty($paymentData)) {
 	exit;
 }
 
-$paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);
-$result = $paypal->validatePayment($_GET["paymentId"], $_GET["PayerID"]);
-$isRenew = false;
+$isRenew = $paymentData["server_id"] > 0;
+
+if ($offers[$paymentData["offer_type"]]["price"] > 0) {
+	$paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);
+	$result = $paypal->validatePayment($_GET["paymentId"], $_GET["PayerID"]);
+} else {
+	if (!$isRenew && $user->hasFreeServer()) {
+		http_response_code(403);
+		$errorMessage = "Vous possédez déjà un serveur gratuit.";
+		require "inc/Pages/Error.php";
+		exit;
+	}
+	
+	$result = true;
+}
 
 if ($result) {
-	if ($paymentData["server_id"] == 0) {
+	if (!$isRenew) {
 		if (Server::isAvailable($paymentData["offer_type"]) && Server::create($paymentData["offer_type"], $_SESSION["phone"])) {
-			$user->createInvoice($paymentData["offer_type"], $offers[$paymentData["offer_type"]]["price"]);
+			if ($offers[$paymentData["offer_type"]]["price"] > 0) {
+				$user->createInvoice($paymentData["offer_type"], $offers[$paymentData["offer_type"]]["price"]);
+			}
 		} else {
 			http_response_code(500);
 			require "inc/Pages/Error.php";
@@ -48,7 +62,11 @@ if ($result) {
 		$server = new Server($paymentData["server_id"]);
 		$serverConfig = $server->getConfig();
 		$server->renew();
-		$user->createInvoice($serverConfig["type"], $offers[$serverConfig["type"]]["price"]);
+		
+		if ($offers[$serverConfig["type"]]["price"] > 0) {
+			$user->createInvoice($serverConfig["type"], $offers[$serverConfig["type"]]["price"]);
+		}
+		
 		$isRenew = true;
 	}
 }
@@ -62,7 +80,7 @@ require "inc/Layout/Start.php";
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="wrapper">
-					<div class="heading"><?=$result ? "Paiement réussi" : "Échec du paiement"?></div>
+					<div class="heading"><?=$result ? ($isRenew ? "Renouvellement réussi" : "Création réussie") : ($isRenew ? "Échec du renouvellement" : "Échec de la création")?></div>
 				</div>
 			</div>
 		</div>

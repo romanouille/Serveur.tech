@@ -1,7 +1,13 @@
 <?php
 class Paypal {
 	private $curl;
-
+	
+	/**
+	 * Constructeur
+	 *
+	 * @param string $client clientID
+	 * @param string $secret Secret
+	 */
 	public function __construct(string $clientId, string $secret) {
 		global $dev;
 		$this->dev = $dev;
@@ -16,7 +22,15 @@ class Paypal {
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, 30);
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 	}
-
+	
+	/**
+	 * Crée un formulaire de paiement
+	 *
+	 * @param float $price Prix
+	 * @param string $url URL de retour
+	 *
+	 * @return array Formulaire de paiement
+	 */
 	public function createPayment(float $price, string $url) : array {
 		$post = '{"intent":"sale","payer":{"payment_method":"paypal"},"transactions":[{"amount":{"total":'.$price.',"currency":"EUR"}}],"redirect_urls":{"return_url":"'.$url.'","cancel_url":"'.$url.'"}}';
 
@@ -29,7 +43,15 @@ class Paypal {
 
 		return $page;
 	}
-
+	
+	/**
+	 * Valide un paiement
+	 *
+	 * @param string $paymentId paymentId
+	 * @param string $payerId payerId
+	 *
+	 * @return bool Paiement approuvé ou non
+	 */
 	public function validatePayment(string $paymentId, string $payerId) : bool {
 		$post = '{"payer_id":"'.$payerId.'"}';
 		curl_setopt($this->curl, CURLOPT_URL, "https://api.".($this->dev ? "sandbox." : "")."paypal.com/v1/payments/payment/$paymentId/execute");

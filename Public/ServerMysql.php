@@ -15,20 +15,20 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!isset($_GET["id"]) || !is_string($_GET["id"]) || !is_numeric($_GET["id"])) {
 	http_response_code(400);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 $server = new Server($_GET["id"]);
 if (!$server->exists()) {
 	http_response_code(404);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 if (!$user->hasServer($_GET["id"])) {
 	http_response_code(403);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
@@ -52,7 +52,7 @@ if (count($_POST) > 0) {
 	}
 }
 
-$config = $server->getConfig();
+$serverConfig = $server->getConfig();
 $breadcrumb = "Serveur #{$_GET["id"]} | MySQL";
 
 require "inc/Layout/Panel/Start.php";
@@ -80,12 +80,12 @@ if (isset($messages) && !empty($messages)) {
 }
 ?>
 	
-	Serveur : <b><?=$offers[$config["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?></b> <br>
-	Nom d'utilisateur : <b><?=$config["ip"]?></b><br>
-	Mot de passe : <b><?=$config["mysql_password"]?></b>
+	Serveur : <b><?=$offers[$serverConfig["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?></b> <br>
+	Nom d'utilisateur : <b><?=$serverConfig["ip"]?></b><br>
+	Mot de passe : <b><?=$serverConfig["mysql_password"]?></b>
 	<br><br>
 	
-	<a href="https://<?=$offers[$config["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?>" class="btn btn-light-primary font-weight-bold btn-sm" target="_blank">Cliquez ici pour accéder à phpMyAdmin</a>
+	<a href="https://<?=$offers[$serverConfig["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?>" class="btn btn-light-primary font-weight-bold btn-sm" target="_blank">Cliquez ici pour accéder à phpMyAdmin</a>
 	<br><br>
 	
 	<form method="post">

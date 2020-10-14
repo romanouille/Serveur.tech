@@ -6,6 +6,14 @@ require "inc/User.class.php";
 
 $dev = PHP_OS == "WINNT";
 
+if ($dev) {
+	error_reporting(-1);
+	ini_set("display_errors", true);
+} else {
+	error_reporting(0);
+	ini_set("display_errors", false);
+}
+
 if (php_sapi_name() != "cli") {
 	session_name("session");
 	session_set_cookie_params(31536000, "/", $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"] == 443, true);
@@ -34,13 +42,20 @@ $countries = [
 
 $offers = [
 	1 => [
-		"ram" => 2,
+		"ram" => 1,
 		"cpu" => 1,
 		"ssd" => 10,
 		"price" => 0,
 		"location" => "Londres"
 	],
 	2 => [
+		"ram" => 8,
+		"cpu" => 2,
+		"ssd" => 50,
+		"price" => 14.99,
+		"location" => "France"
+	],
+	3 => [
 		"ram" => 16,
 		"cpu" => 4,
 		"ssd" => 40,

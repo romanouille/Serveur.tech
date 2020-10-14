@@ -3,17 +3,35 @@ class SMS {
 	private $authorization, $curl;
 	protected $apiUrl = "https://api.bulksms.com/v1";
 	
+	/**
+	 * Constructeur
+	 *
+	 * @param string $tokenId tokenId
+	 * @param string $tokenSecret tokenSecret
+	 */
 	public function __construct(string $tokenId, string $tokenSecret) {
 		$this->authorization = base64_encode("$tokenId:$tokenSecret");
 	}
 	
+	/**
+	 * Destructeur
+	 */
 	public function __destruct() {
 		if (!empty($this->curl)) {
 			curl_close($this->curl);
 		}
 	}
 	
-	public function send(string $number, string $content, bool $premium = false) {
+	/**
+	 * Envoie un SMS
+	 *
+	 * @param string $number Numéro de téléphone
+	 * @param string $content Contenu du SMS
+	 * @param bool $premium Utiliser le réseau premium ou non
+	 *
+	 * @return bool Résultat
+	 */
+	public function send(string $number, string $content, bool $premium = false) : bool {
 		$post = [
 			"to" => $number,
 			"body" => $content,
@@ -25,6 +43,14 @@ class SMS {
 		return isset($data[0]["type"]) && $data[0]["type"] == "SENT";
 	}
 	
+	/**
+	 * Effectue une requête vers l'API
+	 *
+	 * @param string $uri URI
+	 * @param array $post Données POST
+	 *
+	 * @return array Résultat
+	 */
 	private function query(string $uri, array $post = []) : array {
 		if (empty($this->curl)) {
 			$this->curl = curl_init();

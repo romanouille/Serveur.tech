@@ -18,6 +18,12 @@ if (!isset($_GET["id"]) || !is_string($_GET["id"]) || !is_numeric($_GET["id"])) 
 	exit;
 }
 
+if (!isset($_GET["plugin"]) || !is_string($_GET["plugin"]) || !is_numeric($_GET["plugin"])) {
+	http_response_code(400);
+	require "inc/Pages/Panel_error.php";
+	exit;
+}
+
 $server = new Server($_GET["id"]);
 if (!$server->exists()) {
 	http_response_code(404);
@@ -31,11 +37,17 @@ if (!$user->hasServer($_GET["id"])) {
 	exit;
 }
 
-$serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | Console";
+if (!$server->pluginExists($_GET["plugin"])) {
+	http_response_code(404);
+	$errorMessage = "Ce plugin n'existe pas.";
+	require "inc/Pages/Panel_error.php";
+	exit;
+}
 
+$serverConfig = $server->getConfig();
 $server->sshAuth();
 $isStarted = $server->isStarted();
+$pluginData = $server->getPluginData($_GET["plugin"]);
 
 if (count($_POST) > 0) {
 	$messages = [];
@@ -48,30 +60,20 @@ if (count($_POST) > 0) {
 		$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
 	}
 	
-	if (!isset($_POST["command"]) || !is_string($_POST["command"]) || empty(trim($_POST["command"]))) {
-		$messages[] = "Vous devez spécifier la commande à envoyer.";
-	} else {
-		$_POST["command"] = trim($_POST["command"]);
-	}
-	
 	if (empty($messages)) {
-		if ($isStarted) {
-			$server->rconAuth();
-			$server->rcon->sendCommand($_POST["command"]);
-			$messages[] = "La commande a été exécutée.";
-			sleep(3);
-		} else {
-			$messages[] = "Impossible d'envoyer la commande : le serveur est éteint.";
-		}
+		$server->installPlugin($_GET["plugin"]);
+		$messages[] = "Le plugin a été installé. Pensez à redémarrer votre serveur.";
 	}
 }
+
+
+$breadcrumb = "Serveur #{$_GET["id"]} | Plugin \"".htmlspecialchars($pluginData["name"])."\"";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";
 ?>
 
 <div class="container">
-
 <?php
 if (isset($messages) && !empty($messages)) {
 ?>
@@ -91,29 +93,15 @@ if (isset($messages) && !empty($messages)) {
 }
 ?>
 
-	<p style="font-family:Courier">
-<?=$isStarted ? str_replace("\n", "<br>", $server->loadConsole()) : "Le serveur n'est pas démarré."?>
-	</p>
+	<h1><?=htmlspecialchars($pluginData["name"])?></h1><br>
+	<?=htmlspecialchars($pluginData["description"])?>
+	<?=!empty($pluginData["versions"]) ? "<br>Versions : {$pluginData["versions"]}" : ""?>
+	<br><br>
 	
-<?php
-if ($isStarted) {
-?>
 	<form method="post">
 		<input type="hidden" name="token" value="<?=$token?>">
 		<?=$captcha->create()?><br>
-		<div class="row">
-			<div class="col-md-11">
-				<input type="text" name="command" class="form-control" placeholder="Commande à exécuter">
-			</div>
-			
-			<div class="col-md-1">
-				<button type="button" class="btn btn-light-primary font-weight-bold btn-sm" onclick="this.disabled=true;document.getElementsByTagName('form')[0].submit()">Valider</button>
-			</div>
-		</div>
-	</form>
-<?php
-}
-?>
+		<button type="button" class="btn btn-light-primary font-weight-bold btn-sm" onclick="this.disabled=true;document.getElementsByTagName('form')[0].submit()">Installer</button>
 </div>
 
 <?php

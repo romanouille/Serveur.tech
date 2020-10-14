@@ -1,5 +1,12 @@
 <?php
 class Server {
+	/**
+	 * Constructeur
+	 *
+	 * @param int $id ID du serveur
+	 * @param bool $sshAuth Se connecter ou non au serveur SSH
+	 * @param bool $rconAuth Se connecter ou non au serveur RCON
+	 */
 	public function __construct(int $id, bool $sshAuth = false, bool $rconAuth = false) {
 		$this->id = $id;
 		if (!$this->exists()) {
@@ -16,6 +23,9 @@ class Server {
 		}
 	}
 	
+	/**
+	 * Se connecte au serveur SSH
+	 */
 	public function sshAuth() {
 		$this->ssh = new phpseclib\Net\SSH2($this->ip);
 		$key = new phpseclib\Crypt\RSA();
@@ -28,11 +38,21 @@ class Server {
 		return true;
 	}
 	
+	/**
+	 * Se connecte au serveur RCON
+	 */
 	public function rconAuth() {
 		$this->rcon = new Thedudeguy\Rcon($this->ip, 25575, $this->getRconPassword(), 3);
 		$this->rcon->connect();
 	}
 	
+	/**
+	 * Change la version du serveur
+	 *
+	 * @param string $type Type de serveur
+	 * @param string $version Version du serveur
+	 * @param bool $zip Spécifie si la version est dans une archive zip ou non
+	 */
 	public function changeVersion(string $type, string $version, bool $zip = false) {
 		global $config, $offers, $db;
 		
@@ -60,24 +80,43 @@ class Server {
 		$query->execute();
 	}
 	
+	/**
+	 * Démarre le serveur
+	 */
 	public function start() {
 		global $offers;
 		
 		return $this->ssh->exec("screen -dmS minecraft java -Xms512M -Xmx".(1024*$offers[$this->getServerType()]["ram"])."M -jar server.jar");
 	}
 	
+	/**
+	 * Stoppe le serveur
+	 */
 	public function stop() {
 		return $this->rcon->sendCommand("stop");
 	}
 	
+	/**
+	 * Kill le serveur
+	 */
 	public function forcedStop() {
 		return $this->ssh->exec("pkill java");
 	}
 	
+	/**
+	 * Vérifie si le serveur est lancé ou non
+	 *
+	 * @return bool Résultat
+	 */
 	public function isStarted() : bool {
 		return strstr($this->ssh->exec("ps ax | grep java"), "java -Xms");
 	}
 	
+	/**
+	 * Génère un server.properties
+	 *
+	 * [...]
+	 */
 	public function saveServerProperties(
 		bool $enableJmxMonitoring = false,
 		int $rconPort = 25575,
@@ -182,15 +221,14 @@ class Server {
 		return true;
 	}
 	
+	/**
+	 * Effectue un reset du serveur
+	 */
 	public function reset() {
 		global $db, $config, $offers;
 		
 		if ($this->isStarted()) {
-			if (!isset($this->rcon)) {
-				$this->rconAuth();
-			}
-			
-			$this->stop();
+			$this->forcedStop();
 		}
 		
 		$this->ssh->exec("rm -R ~/*");
@@ -203,9 +241,11 @@ class Server {
 		
 		$newRconPassword = random(32);
 		
-		$mariadbHost = $offers[$serverConfig["type"]]["price"] > 0 ? $config["mariadb"]["paying_server"] : $config["mariadb"]["free_server"];
+		$isFree = $offers[$serverConfig["type"]]["price"] == 0;
+		
+		$mariadbHost = $isFree ? $config["mariadb"]["free_server"] : $config["mariadb"]["paying_server"];
 		$mariadbPassword = random(32);
-		$mariadb = new MariaDB($mariadbHost, "root", $config["mariadb"]["password"]);
+		$mariadb = new MariaDB($mariadbHost, "root", $isFree ? $config["mariadb"]["free_server_password"] : $config["mariadb"]["paying_server_password"]);
 		$mariadb->deleteUser($serverConfig["ip"]);
 		$mariadb->createUser($serverConfig["ip"], $mariadbPassword);
 		
@@ -219,9 +259,14 @@ class Server {
 		$this->id = $db->lastInsertId();
 		
 		$this->updateServerProperties($newRconPassword);
-		$this->changeVersion("Spigot", "1.16.3");
+		$this->changeVersion($config["servers"]["default_type"], $config["servers"]["default_version"]);
 	}
 	
+	/**
+	 * Reset le password SSH du serveur
+	 *
+	 * @return string Nouveau mot de passe SSH
+	 */
 	public function resetSshPassword() {
 		global $db;
 		
@@ -237,10 +282,20 @@ class Server {
 		return $newSshPassword;
 	}
 	
+	/**
+	 * Charge la console du serveur
+	 *
+	 * @return string Console
+	 */
 	public function loadConsole() : string {
 		return $this->ssh->exec("tail -100 ~/logs/latest.log");
 	}
 	
+	/**
+	 * Récupère le type du serveur
+	 *
+	 * @return int Type du serveur
+	 */
 	public function getServerType() : int {
 		global $db;
 		
@@ -251,6 +306,11 @@ class Server {
 		return (int)$query->fetch()["type"];
 	}
 	
+	/**
+	 * Récupère le mot de passe RCON du serveur
+	 *
+	 * @return string Mot de passe RCON
+	 */
 	public function getRconPassword() : string {
 		global $db;
 		
@@ -258,9 +318,14 @@ class Server {
 		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
 		$query->execute();
 		
-		return (string)$query->fetch()["rcon_password"];
+		return (string)trim($query->fetch()["rcon_password"]);
 	}
 	
+	/**
+	 * Vérifie si le serveur existe
+	 *
+	 * @return bool Résultat
+	 */
 	public function exists() : bool {
 		global $db;
 		
@@ -272,6 +337,11 @@ class Server {
 		return $data["nb"] == 1;
 	}
 	
+	/**
+	 * Récupère l'adresse IP du serveur
+	 *
+	 * @return string Adresse IP du serveur
+	 */
 	public function getIp() : string {
 		global $db;
 		
@@ -283,6 +353,9 @@ class Server {
 		return trim($data["ip"]);
 	}
 	
+	/**
+	 * Récupère le mot de passe SSH du serveur
+	 */
 	public function getSshPassword() : string {
 		global $db;
 		
@@ -294,6 +367,11 @@ class Server {
 		return (string)trim($data["ssh_password"]);
 	}
 	
+	/**
+	 * Charge la configuration du serveur
+	 *
+	 * @return array Résultat
+	 */
 	public function getConfig() : array {
 		global $db;
 		
@@ -339,6 +417,11 @@ class Server {
 		return $result;
 	}
 	
+	/**
+	 * Met à jour le server.properties en base de données
+	 *
+	 * [...]
+	 */
 	public function updateServerProperties(string $rconPassword, string $motd = "A Minecraft Server", int $maxPlayers = 20, string $difficulty = "normal", string $levelName = "world", string $levelSeed = "", string $levelType = "default", int $gamemode = 0, int $whiteList = 0, int $onlineMode = 1, int $generateStructures = 1, int $enableCommandBlock = 0, int $allowNether = 1, int $pvp = 1, int $spawnNpcs = 1, int $spawnMonsters = 1, $spawnAnimals = 1, int $hardcore = 0) {
 		global $db;
 		
@@ -367,10 +450,18 @@ class Server {
 		$this->saveServerProperties(false, 25575, $levelSeed, $gamemode, $enableCommandBlock, false, "", $levelName, $motd, 25565, $pvp, $generateStructures, $difficulty, 256, 60000, true, $maxPlayers, $onlineMode, true, false, true, 10, 256, "", $allowNether, 25565, true, true, 4, false, "", 100, $rconPassword, 0, false, 0, $hardcore, $whiteList, true, $spawnNpcs, $spawnAnimals, true, 2, $levelType, $spawnMonsters, false, "", 16, 29999984);
 	}
 	
+	/**
+	 * Crée un serveur
+	 *
+	 * @param int $type Type de serveur
+	 * @param string $owner Numéro de téléphone du détenteur
+	 *
+	 * @return int ID du serveur
+	 */
 	public static function create(int $type, string $owner) : int {
 		global $db;
 		
-		$query = $db->prepare("SELECT id, ip FROM servers WHERE type = :type AND expiration = 0");
+		$query = $db->prepare("SELECT id, ip FROM servers WHERE type = :type AND expiration = 0 ORDER BY id ASC");
 		$query->bindValue(":type", $type, PDO::PARAM_INT);
 		$query->execute();
 		$data = $query->fetch();
@@ -387,7 +478,14 @@ class Server {
 		
 		return $data["id"];
 	}
-		
+	
+	/**
+	 * Vérifie si il reste des serveurs disponibles selon un type spécifique
+	 *
+	 * @param int $type Type de serveur
+	 *
+	 * @return bool Résultat
+	 */
 	public static function isAvailable(int $type) : bool {
 		global $db;
 		
@@ -399,17 +497,22 @@ class Server {
 		return $data["nb"] >= 1;
 	}
 	
+	/**
+	 * Récupère la liste des serveurs proches de l'expiration
+	 *
+	 * @return array Résultat
+	 */
 	public static function getServersNearExpiration() : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE expiration-".time()." < 86400 AND expiration != 0");
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE expiration-".time()." < 259200 AND expiration != 0");
 		$query->execute();
 		$data = $query->fetch();
 		if ($data["nb"] == 0) {
 			return [];
 		}
 		
-		$query = $db->prepare("SELECT id FROM servers WHERE expiration-".time()." < 86400 AND expiration != 0");
+		$query = $db->prepare("SELECT id FROM servers WHERE expiration-".time()." < 259200 AND expiration != 0");
 		$query->execute();
 		$data = $query->fetchAll();
 		$result = [];
@@ -421,6 +524,11 @@ class Server {
 		return $result;
 	}
 	
+	/**
+	 * Récupère la liste des serveurs expirés
+	 *
+	 * @return array Résultat
+	 */
 	public static function getExpiredServers() : array {
 		global $db;
 		
@@ -443,6 +551,11 @@ class Server {
 		return $result;
 	}
 	
+	/**
+	 * Définit le serveur comme ayant été signalé comme proche de l'expiration
+	 *
+	 * @return bool Résultat
+	 */
 	public function setExpirationWarning() : bool {
 		global $db;
 		
@@ -452,6 +565,11 @@ class Server {
 		return $query->execute();
 	}
 	
+	/**
+	 * Renouvelle le serveur
+	 *
+	 * @return bool Résultat
+	 */
 	public function renew() : bool {
 		global $db;
 		
@@ -467,7 +585,12 @@ class Server {
 		return $query->execute();
 	}
 	
-	public static function getUninitializedServersList() {
+	/**
+	 * Récupère la liste des serveurs non initialisés
+	 *
+	 * @return array Résultat
+	 */
+	public static function getUninitializedServersList() : array {
 		global $db;
 		
 		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE expiration = -1");
@@ -489,6 +612,13 @@ class Server {
 		return $result;
 	}
 	
+	/**
+	 * Recherche des plugins selon un texte défini
+	 *
+	 * @param string $text Texte à rechercher
+	 *
+	 * @return array Résultat
+	 */
 	public function searchPlugins(string $text) : array {
 		global $db;
 		
@@ -504,9 +634,10 @@ class Server {
 		$result = [];
 		
 		foreach ($data as $value) {
+			$value = array_map("trim", $value);
+			
 			$result[] = [
 				"id" => (int)$value["id"],
-				"jar_name" => (string)$value["jar_name"],
 				"name" => (string)$value["name"],
 				"description" => (string)$value["description"],
 				"versions" => (string)$value["versions"]
@@ -516,13 +647,20 @@ class Server {
 		return $result;
 	}
 	
+	/**
+	 * Modifie le mot de passe MySQL associé au serveur
+	 *
+	 * @return bool Résultat
+	 */
 	public function changeMysqlPassword() : bool {
 		global $db, $config, $offers;
 		
 		$serverConfig = $this->getConfig();
-		$mariadbHost = $offers[$serverConfig["type"]]["price"] > 0 ? $config["mariadb"]["paying_server"] : $config["mariadb"]["free_server"];
+		
+		$isFree = $offers[$serverConfig["type"]]["price"] == 0;
+		$mariadbHost = $isFree ? $config["mariadb"]["free_server"] : $config["mariadb"]["paying_server"];
 		$mariadbPassword = random(32);
-		$mariadb = new MariaDB($mariadbHost, "root", $config["mariadb"]["password"]);
+		$mariadb = new MariaDB($mariadbHost, "root", $isFree ? $config["mariadb"]["free_server_password"] : $config["mariadb"]["paying_server_password"]);
 		$mariadb->changePassword($serverConfig["ip"], $mariadbPassword);
 		
 		$query = $db->prepare("UPDATE servers SET mysql_password = :mysql_password WHERE id = :id");
@@ -530,5 +668,76 @@ class Server {
 		$query->bindValue(":id", $this->id, PDO::PARAM_INT);
 		
 		return $query->execute();
+	}
+	
+	/**
+	 * Vérifie si un plugin existe
+	 *
+	 * @param int $id ID du plugin
+	 *
+	 * @return bool Résultat
+	 */
+	public function pluginExists(int $id) : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins WHERE id = :id");
+		$query->bindValue(":id", $id, PDO::PARAM_INT);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["nb"] == 1;
+	}
+	
+	/**
+	 * Charge les données à propos d'un plugin
+	 *
+	 * @param int $id ID du plugin
+	 *
+	 * @return array Résultat
+	 */
+	public function getPluginData(int $id) : array {
+		global $db;
+		
+		$query = $db->prepare("SELECT name, description, versions FROM plugins WHERE id = :id");
+		$query->bindValue(":id", $id, PDO::PARAM_INT);
+		$query->execute();
+		$data = array_map("trim", $query->fetch());
+		
+		$result = [
+			"name" => (string)$data["name"],
+			"description" => (string)$data["description"],
+			"versions" => (string)$data["versions"]
+		];
+		
+		return $result;
+	}
+	
+	/**
+	 * Installe un plugin
+	 *
+	 * @param int $id ID du plugin
+	 *
+	 * @return bool Résultat
+	 */
+	public function installPlugin(int $id) : bool {
+		global $db, $offers, $config;
+		
+		$storageServer = $offers[$this->getServerType()]["price"] > 0 ? $config["storage"]["paying_server"] : $config["storage"]["free_server"];
+		
+		$query = $db->prepare("SELECT jar_name, zip FROM plugins WHERE id = :id");
+		$query->bindValue(":id", $id, PDO::PARAM_INT);
+		$query->execute();
+		$data = $query->fetch();
+		$jarName = trim($data["jar_name"]);
+		
+		if (!$data["zip"]) {
+			$this->ssh->exec("wget -O plugins/$jarName.jar http://$storageServer/Plugins/$jarName.jar");
+		} else {
+			$this->ssh->exec("wget -O plugins/$jarName.zip http://$storageServer/Plugins/$jarName.zip");
+			$this->ssh->exec("unzip plugins/$jarName.zip");
+			$this->ssh->exec("rm plugin/$jarName.zip");
+		}
+		
+		return true;
 	}
 }

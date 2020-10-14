@@ -10,7 +10,7 @@
 						<div class="mr-3">
 							<!--begin::Name-->
 							<a href="#" class="d-flex align-items-center text-dark text-hover-primary font-size-h5 font-weight-bold mr-3">
-							<?=$config["ip"]?>
+							<?=$serverConfig["ip"]?>
 							</a>
 							<!--end::Name-->
 							<!--begin::Contacts-->
@@ -26,7 +26,7 @@
 										</svg>
 										<!--end::Svg Icon-->
 									</span>
-									<?=$offers[$config["type"]]["location"]?>
+									<?=$offers[$serverConfig["type"]]["location"]?>
 								</a>
 							</div>
 							<!--end::Contacts-->
@@ -59,7 +59,7 @@ if ($server->isStarted()) {
 							<div class="d-flex align-items-center mr-10">
 								<div>
 									<div class="font-weight-bold mb-2">Date d'expiration</div>
-									<span class="btn btn-sm btn-text btn-light-danger text-uppercase font-weight-bold"><?=date("d/m/Y H:i:s", $config["expiration"])?></span>
+									<span class="btn btn-sm btn-text btn-light-danger text-uppercase font-weight-bold"><?=date("d/m/Y H:i:s", $serverConfig["expiration"])?></span>
 								</div>
 							</div>
 						</div>
@@ -78,7 +78,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">Prix mensuel</span>
-						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["price"]?><span class="text-dark-50 font-weight-bold">€</span></span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$serverConfig["type"]]["price"]?><span class="text-dark-50 font-weight-bold">€</span></span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -89,7 +89,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">CPU</span>
-						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$config["type"]]["cpu"]?>x</span><?=$offers[$config["type"]]["price"] > 0 ? "4" : "2.4"?>GHz</span>
+						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$serverConfig["type"]]["cpu"]?>x</span><?=$offers[$serverConfig["type"]]["price"] > 0 ? "4" : "2.4"?>GHz</span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -100,7 +100,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">RAM</span>
-						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["ram"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$serverConfig["type"]]["ram"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
 					</div>
 				</div>
 				<!--end: Item-->
@@ -111,7 +111,7 @@ if ($server->isStarted()) {
 					</span>
 					<div class="d-flex flex-column flex-lg-fill">
 						<span class="text-dark-75 font-weight-bolder font-size-sm">Stockage</span>
-						<span class="font-weight-bolder font-size-h5"><?=$offers[$config["type"]]["ssd"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
+						<span class="font-weight-bolder font-size-h5"><?=$offers[$serverConfig["type"]]["ssd"]?><span class="text-dark-50 font-weight-bold"> Go</span></span>
 					</div>
 				</div>
 				<!--end: Item-->

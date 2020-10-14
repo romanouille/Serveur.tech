@@ -46,20 +46,12 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
-		if ($server->sshAuth()) {
-			$server->resetSshPassword();
-			$messages[] = "Le mot de passe a été regénéré.";
-		} else {
-			$messages[] = "Un problème est survenu pendant la regénération du mot de passe FTP.";
-		}
-	} else {
-		$server->sshAuth();
+		$server->resetSshPassword();
+		$messages[] = "Le mot de passe FTP a été regénéré.";
 	}
-} else {
-	$server->sshAuth();
 }
 
-$config = $server->getConfig();
+$serverConfig = $server->getConfig();
 $breadcrumb = "Serveur #{$_GET["id"]} | FTP";
 
 require "inc/Layout/Panel/Start.php";
@@ -87,9 +79,9 @@ if (isset($messages) && !empty($messages)) {
 }
 ?>
 	
-	Serveur : <b><?=$config["ip"]?></b><br>
+	Serveur : <b><?=$serverConfig["ip"]?></b><br>
 	Nom d'utilisateur : <b>user</b><br>
-	Mot de passe : <b><?=$config["ssh_password"]?></b>
+	Mot de passe : <b><?=$serverConfig["ssh_password"]?></b>
 	<br><br>
 	
 	<form method="post">

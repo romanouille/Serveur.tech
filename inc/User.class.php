@@ -1,10 +1,20 @@
 <?php
 class User {
+	/**
+	 * Constructeur
+	 *
+	 * @param string $phone Numéro de téléphone de l'utilisateur
+	 */
 	public function __construct(string $phone) {
 		$this->phone = $phone;
 	}
 	
-	public function exists() {
+	/**
+	 * Vérifie si l'utilisateur existe
+	 *
+	 * @return bool Résultat
+	 */
+	public function exists() : bool {
 		global $db;
 		
 		$query = $db->prepare("SELECT COUNT(*) AS nb FROM users WHERE phone = :phone");
@@ -15,6 +25,22 @@ class User {
 		return $data["nb"] > 0;
 	}
 	
+	/**
+	 * Crée un utilisateur
+	 *
+	 * @param string $phone Numéro de téléphone
+	 * @param string $password Mot de passe
+	 * @param string $firstName Prénom
+	 * @param string $lastName Nom
+	 * @param string $companyName Nom de l'entreprise
+	 * @param string $address1 Adresse 1
+	 * @param string $address2 Adresse 2
+	 * @param string $city Ville
+	 * @param string $postalCode Code postal
+	 * @param string $country Pays
+	 *
+	 * @return bool ID de l'utilisateur créé
+	 */
 	public static function create(string $phone, string $password, string $firstName, string $lastName, string $companyName, string $address1, string $address2, string $city, string $postalCode, string $country) {
 		global $db;
 		
@@ -34,6 +60,11 @@ class User {
 		return $db->lastInsertId();
 	}
 	
+	/**
+	 * Charge le profil de l'utilisateur
+	 *
+	 * @return array Profil de l'utilisateur
+	 */
 	public function getProfile() : array {
 		global $db;
 		
@@ -45,6 +76,11 @@ class User {
 		return array_map("trim", $data);
 	}
 	
+	/**
+	 * Envoie un code SMS
+	 *
+	 * @return bool Résultat
+	 */
 	public function sendSmsCode() : bool {
 		global $config, $db;
 		
@@ -59,6 +95,11 @@ class User {
 		return $sms->send("+33".substr($this->phone, 1), "Votre code de validation Serveur.tech est : $code");
 	}
 	
+	/**
+	 * Récupère le code de validation SMS
+	 *
+	 * @return int Code de validation SMS
+	 */
 	public function getValidationCode() : int {
 		global $db;
 		
@@ -70,6 +111,13 @@ class User {
 		return $data["validation_code"];
 	}
 	
+	/**
+	 * Vérifie le mot de passe de l'utilisateur
+	 *
+	 * @param string $password Mot de passe
+	 *
+	 * @param bool Résultat
+	 */
 	public function verifyPassword(string $password) : bool {
 		global $db;
 		
@@ -81,6 +129,14 @@ class User {
 		return password_verify($password, trim($data["password"]));
 	}
 	
+	/**
+	 * Modifie le mot de passe de l'utilisateur
+	 *
+	 * @param string $password Nouveau mot de passe
+	 *
+	 * @return bool Résultat
+	 
+	 */
 	public function changePassword(string $password) : bool {
 		global $db;
 		
@@ -91,6 +147,15 @@ class User {
 		return $query->execute();
 	}
 	
+	/**
+	 * Crée un nouveau paiement
+	 *
+	 * @param string $paymentId paymentId
+	 * @param string $offerType Type d'offre
+	 * @param int $serverId ID du serveur cible
+	 *
+	 * @return bool Résultat
+	 */
 	public function createPayment(string $paymentId, int $offerType, int $serverId = 0) : bool {
 		global $db;
 		
@@ -102,6 +167,13 @@ class User {
 		return $query->execute();
 	}
 	
+	/**
+	 * Récupère les données à propos d'un paiement
+	 *
+	 * @param string $paymentId paymentId
+	 *
+	 * @return array Résultat
+	 */
 	public function getPaymentData(string $paymentId) : array {
 		global $db;
 		
@@ -126,6 +198,9 @@ class User {
 		return $result;
 	}
 	
+	/**
+	 * Récupère l'ID de l'utilisateur
+	 */
 	public function getId() : int {
 		global $db;
 		
@@ -137,6 +212,12 @@ class User {
 		return $data["id"];
 	}
 	
+	/**
+	 * Crée une facture
+	 *
+	 * @param int $type Type de serveur
+	 * @param float $price Prix
+	 */
 	public function createInvoice(int $type, float $price) : int {
 		global $db;
 		
@@ -149,6 +230,13 @@ class User {
 		return $db->lastInsertId();
 	}
 	
+	/**
+	 * Charge une facture
+	 *
+	 * @param int $id ID de la facture
+	 *
+	 * @return array Données à propos de la facture
+	 */
 	public function getInvoice(int $id) : array {
 		global $db;
 		
@@ -172,14 +260,19 @@ class User {
 		return $data;
 	}
 	
+	/**
+	 * Récupère la liste des serveurs de l'utilisateur
+	 *
+	 * @return array Liste des serveurs de l'utilisateur
+	 */
 	public function getServersList() : array {
 		global $db;
 		
 		if (!$_SESSION["admin"]) {
-			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner");
+			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner ORDER BY id ASC");
 			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
 		} else {
-			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE expiration > 0");
+			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE expiration > 0 ORDER BY id ASC");
 		}
 		$query->execute();
 		$data = $query->fetchAll();
@@ -201,6 +294,11 @@ class User {
 		return $result;
 	}
 	
+	/**
+	 * Récupère la liste des factures de l'utilisateur
+	 *
+	 * @return array Résultat
+	 */
 	public function getInvoicesList() : array {
 		global $db;
 		
@@ -231,6 +329,13 @@ class User {
 		return $result;
 	}
 	
+	/**
+	 * Vérifie si l'utilisateur possède un serveur spécifique
+	 *
+	 * @param int $serverId ID du serveur
+	 *
+	 * @return bool Résultat
+	 */
 	public function hasServer(int $serverId) : bool {
 		global $db;
 		
@@ -248,6 +353,11 @@ class User {
 		return $data["nb"] == 1;
 	}
 	
+	/**
+	 * Charge un ticket
+	 *
+	 * @return array Données du ticket
+	 */
 	public function loadTicket() : array {
 		global $db;
 		
@@ -268,6 +378,13 @@ class User {
 		return $result;
 	}
 	
+	/**
+	 * Répond à un ticket
+	 *
+	 * @param string $message Contenu du message
+	 *
+	 * @return bool Résultat
+	 */
 	public function replyToTicket($message) : bool {
 		global $db;
 		
@@ -278,6 +395,11 @@ class User {
 		return $query->execute();
 	}
 	
+	/**
+	 * Vérifie si l'utilisateur est administrateur
+	 *
+	 * @return bool Résultat
+	 */
 	public function isAdmin() : bool {
 		global $db;
 		
@@ -287,5 +409,21 @@ class User {
 		$data = $query->fetch();
 		
 		return $data["admin"] == 1;
+	}
+	
+	/**
+	 * Vérifie si l'utilisateur possède un serveur gratuit
+	 *
+	 * @return bool Résultat
+	 */
+	public function hasFreeServer() : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE owner = :owner");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["nb"] >= 1;
 	}
 }

@@ -67,7 +67,9 @@ if (count($_POST) > 0) {
 						$user->changePassword($_POST["password"]);
 						$_SESSION = [
 							"phone" => $_POST["phone"],
-							"2fa" => true
+							"userId" => $user->getId(),
+							"2fa" => true,
+							"admin" => $user->isAdmin()
 						];
 						
 						header("Location: /");

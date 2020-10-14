@@ -14,20 +14,20 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!$_SESSION["admin"]) {
 	http_response_code(403);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 if (!isset($_GET["phone"]) || !is_string($_GET["phone"]) || empty($_GET["phone"]) || !is_numeric($_GET["phone"])) {
 	http_response_code(400);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 $ticketUser = new User($_GET["phone"]);
 if (!$ticketUser->exists()) {
 	http_response_code(404);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
@@ -51,7 +51,8 @@ if (count($_POST) > 0) {
 }
 
 $messages = Admin::loadTicket($_GET["phone"]);
-$userProfile = $user->getProfile();
+$ticketUser = new User($_GET["phone"]);
+$userProfile = $ticketUser->getProfile();
 
 $breadcrumb = "Ticket pour {$_GET["phone"]}";
 

@@ -11,14 +11,14 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!isset($_GET["id"]) || !is_string($_GET["id"]) || !is_numeric($_GET["id"])) {
 	http_response_code(400);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 $invoice = $user->getInvoice($_GET["id"]);
 if (empty($invoice)) {
 	http_response_code(404);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 

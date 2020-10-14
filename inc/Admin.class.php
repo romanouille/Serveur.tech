@@ -1,5 +1,10 @@
 <?php
 class Admin {
+	/**
+	 * Récupère la liste des tickets
+	 *
+	 * @return array Liste des tickets
+	 */
 	public static function getTicketsList() : array {
 		global $db;
 		
@@ -22,7 +27,14 @@ class Admin {
 		
 		return $result;
 	}
-		
+	
+	/**
+	 * Charge un ticket
+	 *
+	 * @param int $userPhone Numéro de téléphone du ticket
+	 *
+	 * @return array Données du ticket
+	 */
 	public static function loadTicket(string $userPhone) : array {
 		global $db;
 		
@@ -47,6 +59,14 @@ class Admin {
 		return $result;
 	}
 	
+	/**
+	 * Répond à un ticket via en étant administrateur
+	 *
+	 * @param string $recipient Destinataire
+	 * @param string $message Contenu du message
+	 *
+	 * @return bool Résultat
+	 */
 	public static function replyToTicket(string $recipient, string $message) : bool {
 		global $db;
 		

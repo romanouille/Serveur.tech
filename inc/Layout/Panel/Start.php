@@ -110,7 +110,7 @@ if (!$_SESSION["admin"]) {
 					<div class="d-flex flex-column">
 						<!--begin::Title-->
 						<h2 class="text-white font-weight-bold my-2 mr-5">
-							<?=$breadcrumb?>                 
+							<?=$breadcrumb?>
 						</h2>
 						<!--end::Title-->
 						<!--begin::Breadcrumb-->

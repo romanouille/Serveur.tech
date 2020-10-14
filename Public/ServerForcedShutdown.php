@@ -15,20 +15,20 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!isset($_GET["id"]) || !is_string($_GET["id"]) || !is_numeric($_GET["id"])) {
 	http_response_code(400);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 $server = new Server($_GET["id"]);
 if (!$server->exists()) {
 	http_response_code(404);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 if (!$user->hasServer($_GET["id"])) {
 	http_response_code(403);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
@@ -59,7 +59,7 @@ if (count($_POST) > 0) {
 	}
 }
 
-$config = $server->getConfig();
+$serverConfig = $server->getConfig();
 $breadcrumb = "Serveur #{$_GET["id"]} | Arrêter";
 
 require "inc/Layout/Panel/Start.php";
@@ -91,7 +91,7 @@ if (isset($messages) && !empty($messages)) {
 		<input type="hidden" name="token" value="<?=$token?>">
 		<?=$captcha->create()?><br>
 		
-		<button type="button" class="btn btn-light-primary font-weight-bold btn-sm" onclick="this.disabled=true;document.getElementsByTagName('form')[0].submit()">Cliquez ici pour effectuer un arrêt du serveur</button>
+		<button type="button" class="btn btn-light-primary font-weight-bold btn-sm" onclick="this.disabled=true;document.getElementsByTagName('form')[0].submit()">Cliquez ici pour effectuer un arrêt forcé du serveur</button>
 	</form>
 </div>
 

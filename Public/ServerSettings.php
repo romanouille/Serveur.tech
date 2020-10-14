@@ -14,22 +14,25 @@ if (!isset($user) || !$_SESSION["2fa"]) {
 
 if (!isset($_GET["id"]) || !is_string($_GET["id"]) || !is_numeric($_GET["id"])) {
 	http_response_code(400);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 $server = new Server($_GET["id"]);
 if (!$server->exists()) {
 	http_response_code(404);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
 
 if (!$user->hasServer($_GET["id"])) {
 	http_response_code(403);
-	require "inc/Pages/Error.php";
+	require "inc/Pages/Panel_error.php";
 	exit;
 }
+
+$server->sshAuth();
+$isStarted = $server->isStarted();
 
 if (count($_POST) > 0) {
 	$messages = [];
@@ -155,32 +158,18 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
-		$server = new Server($_GET["id"]);
-		
-		if ($server->sshAuth()) {
-			$isStarted = $server->isStarted();
-			if ($isStarted) {
-				$server->rconAuth();
-			}
-			
-			$server->updateServerProperties($_POST["rcon-password"], $_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
-			$server->changeVersion($_POST["version"][0], $_POST["version"][1], in_array($_POST["version"][0], ["Forge"]));
-			
-			$messages[] = "Les paramètres ont été enregistrés.";
-		} else {
-			$messages[] = "Un problème est survenu durant la modification des paramètres du serveur.";
-			$isStarted = false;
+		if ($isStarted) {
+			$server->rconAuth();
 		}
-	} else {
-		$server->sshAuth();
-		$isStarted = $server->isStarted();
+		
+		$server->updateServerProperties($_POST["rcon-password"], $_POST["motd"], $_POST["max-players"], $_POST["difficulty"], $_POST["level-name"], $_POST["level-seed"], $_POST["level-type"], $_POST["gamemode"], $_POST["white-list"], $_POST["online-mode"], $_POST["generate-structures"], $_POST["enable-command-block"], $_POST["allow-nether"], $_POST["pvp"], $_POST["spawn-npcs"], $_POST["spawn-monsters"], $_POST["spawn-animals"], $_POST["hardcore"]);
+		$server->changeVersion($_POST["version"][0], $_POST["version"][1], in_array($_POST["version"][0], ["Forge"]));
+		
+		$messages[] = "Les paramètres ont été enregistrés.";
 	}
-} else {
-	$server->sshAuth();
-	$isStarted = $server->isStarted();
 }
 
-$config = $server->getConfig();
+$serverConfig = $server->getConfig();
 $breadcrumb = "Serveur #{$_GET["id"]} | Paramètres";
 
 require "inc/Layout/Panel/Start.php";
@@ -213,7 +202,7 @@ if (isset($messages)) {
 foreach ($serversVersions as $type=>$versions) {
 	foreach ($versions as $version) {
 					?>
-				<option value="<?=$type?>_<?=$version?>"<?=$config["version"] == $type."_".$version ? " selected" : ""?>><?=$type?> <?=$version?></option>
+				<option value="<?=$type?>_<?=$version?>"<?=$serverConfig["version"] == $type."_".$version ? " selected" : ""?>><?=$type?> <?=$version?></option>
 				<?php
 	}
 }
@@ -224,47 +213,47 @@ foreach ($serversVersions as $type=>$versions) {
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">MOTD</label>
 		<div class="col-lg-9 col-xl-6">
-			<input class="form-control form-control-lg form-control-solid" type="text" name="motd" value="<?=htmlspecialchars($config["motd"])?>" required>
+			<input class="form-control form-control-lg form-control-solid" type="text" name="motd" value="<?=htmlspecialchars($serverConfig["motd"])?>" required>
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Slots</label>
 		<div class="col-lg-9 col-xl-6">
-			<input class="form-control form-control-lg form-control-solid" type="number" name="max-players" value="<?=htmlspecialchars($config["max-players"])?>" required>
+			<input class="form-control form-control-lg form-control-solid" type="number" name="max-players" value="<?=htmlspecialchars($serverConfig["max-players"])?>" required>
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Difficulté</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="difficulty" class="form-control">
-				<option value="peaceful"<?=$config["difficulty"] == "peaceful" ? " selected" : ""?>>Paisible</option>
-				<option value="easy"<?=$config["difficulty"] == "easy" ? " selected" : ""?>>Facile</option>
-				<option value="normal"<?=$config["difficulty"] == "normal" ? " selected" : ""?>>Normal</option>
-				<option value="hard"<?=$config["difficulty"] == "hard" ? " selected" : ""?>>Difficile</option>
+				<option value="peaceful"<?=$serverConfig["difficulty"] == "peaceful" ? " selected" : ""?>>Paisible</option>
+				<option value="easy"<?=$serverConfig["difficulty"] == "easy" ? " selected" : ""?>>Facile</option>
+				<option value="normal"<?=$serverConfig["difficulty"] == "normal" ? " selected" : ""?>>Normal</option>
+				<option value="hard"<?=$serverConfig["difficulty"] == "hard" ? " selected" : ""?>>Difficile</option>
 			</select>
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Nom de la map</label>
 		<div class="col-lg-9 col-xl-6">
-			<input class="form-control form-control-lg form-control-solid" type="text" name="level-name" value="<?=htmlspecialchars($config["level-name"])?>" required>
+			<input class="form-control form-control-lg form-control-solid" type="text" name="level-name" value="<?=htmlspecialchars($serverConfig["level-name"])?>" required>
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Seed de la map</label>
 		<div class="col-lg-9 col-xl-6">
-			<input class="form-control form-control-lg form-control-solid" type="text" name="level-seed" value="<?=htmlspecialchars($config["level-seed"])?>">
+			<input class="form-control form-control-lg form-control-solid" type="text" name="level-seed" value="<?=htmlspecialchars($serverConfig["level-seed"])?>">
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Type de map</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="level-type" class="form-control">
-				<option value="default"<?=$config["level-type"] == "default" ? " selected" : ""?>>default</option>
-				<option value="flat"<?=$config["level-type"] == "flat" ? " selected" : ""?>>flat</option>
-				<option value="largeBiomes"<?=$config["level-type"] == "largeBiomes" ? " selected" : ""?>>largeBiomes</option>
-				<option value="amplified"<?=$config["level-type"] == "amplified" ? " selected" : ""?>>amplified</option>
-				<option value="buffet"<?=$config["level-type"] == "buffet" ? " selected" : ""?>>buffet</option>
+				<option value="default"<?=$serverConfig["level-type"] == "default" ? " selected" : ""?>>default</option>
+				<option value="flat"<?=$serverConfig["level-type"] == "flat" ? " selected" : ""?>>flat</option>
+				<option value="largeBiomes"<?=$serverConfig["level-type"] == "largeBiomes" ? " selected" : ""?>>largeBiomes</option>
+				<option value="amplified"<?=$serverConfig["level-type"] == "amplified" ? " selected" : ""?>>amplified</option>
+				<option value="buffet"<?=$serverConfig["level-type"] == "buffet" ? " selected" : ""?>>buffet</option>
 			</select>
 		</div>
 	</div>
@@ -272,10 +261,10 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Gamemode</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="gamemode" class="form-control">
-				<option value="0"<?=$config["gamemode"] == 0 ? " selected" : ""?>>Survie (0)</option>
-				<option value="1"<?=$config["gamemode"] == 1 ? " selected" : ""?>>Créatif (1)</option>
-				<option value="2"<?=$config["gamemode"] == 2 ? " selected" : ""?>>Aventure (2)</option>
-				<option value="3"<?=$config["gamemode"] == 3 ? " selected" : ""?>>Spectateur (3)</option>
+				<option value="0"<?=$serverConfig["gamemode"] == 0 ? " selected" : ""?>>Survie (0)</option>
+				<option value="1"<?=$serverConfig["gamemode"] == 1 ? " selected" : ""?>>Créatif (1)</option>
+				<option value="2"<?=$serverConfig["gamemode"] == 2 ? " selected" : ""?>>Aventure (2)</option>
+				<option value="3"<?=$serverConfig["gamemode"] == 3 ? " selected" : ""?>>Spectateur (3)</option>
 			</select>
 		</div>
 	</div>
@@ -283,8 +272,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Whitelist</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="white-list" class="form-control">
-				<option value="1"<?=$config["white-list"] ? " selected" : ""?>>Activée</option>
-				<option value="0"<?=!$config["white-list"] ? " selected" : ""?>>Désactivée</option>
+				<option value="1"<?=$serverConfig["white-list"] ? " selected" : ""?>>Activée</option>
+				<option value="0"<?=!$serverConfig["white-list"] ? " selected" : ""?>>Désactivée</option>
 			</select>
 		</div>
 	</div>
@@ -292,8 +281,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Versions crackées</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="online-mode" class="form-control">
-				<option value="1"<?=$config["online-mode"] ? " selected" : ""?>>Autorisées</option>
-				<option value="0"<?=!$config["online-mode"] ? " selected" : ""?>>Interdites</option>
+				<option value="1"<?=$serverConfig["online-mode"] ? " selected" : ""?>>Autorisées</option>
+				<option value="0"<?=!$serverConfig["online-mode"] ? " selected" : ""?>>Interdites</option>
 			</select>
 		</div>
 	</div>
@@ -301,8 +290,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Génération des structures</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="generate-structures" class="form-control">
-				<option value="1"<?=$config["generate-structures"] ? " selected" : ""?>>Activée</option>
-				<option value="0"<?=!$config["generate-structures"] ? " selected" : ""?>>Désactivée</option>
+				<option value="1"<?=$serverConfig["generate-structures"] ? " selected" : ""?>>Activée</option>
+				<option value="0"<?=!$serverConfig["generate-structures"] ? " selected" : ""?>>Désactivée</option>
 			</select>
 		</div>
 	</div>
@@ -310,8 +299,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Command blocks</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="enable-command-block" class="form-control">
-				<option value="1"<?=$config["enable-command-block"] ? " selected" : ""?>>Activés</option>
-				<option value="0"<?=!$config["enable-command-block"] ? " selected" : ""?>>Désactivés</option>
+				<option value="1"<?=$serverConfig["enable-command-block"] ? " selected" : ""?>>Activés</option>
+				<option value="0"<?=!$serverConfig["enable-command-block"] ? " selected" : ""?>>Désactivés</option>
 			</select>
 		</div>
 	</div>
@@ -319,8 +308,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Nether</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="allow-nether" class="form-control">
-				<option value="1"<?=$config["allow-nether"] ? " selected" : ""?>>Activé</option>
-				<option value="0"<?=!$config["allow-nether"] ? " selected" : ""?>>Désactivé</option>
+				<option value="1"<?=$serverConfig["allow-nether"] ? " selected" : ""?>>Activé</option>
+				<option value="0"<?=!$serverConfig["allow-nether"] ? " selected" : ""?>>Désactivé</option>
 			</select>
 		</div>
 	</div>
@@ -328,8 +317,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">PVP</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="pvp" class="form-control">
-				<option value="1"<?=$config["pvp"] ? " selected" : ""?>>Activé</option>
-				<option value="0"<?=!$config["pvp"] ? " selected" : ""?>>Désactivé</option>
+				<option value="1"<?=$serverConfig["pvp"] ? " selected" : ""?>>Activé</option>
+				<option value="0"<?=!$serverConfig["pvp"] ? " selected" : ""?>>Désactivé</option>
 			</select>
 		</div>
 	</div>
@@ -337,8 +326,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Villageois</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="spawn-npcs" class="form-control">
-				<option value="1"<?=$config["spawn-npcs"] ? " selected" : ""?>>Activés</option>
-				<option value="0"<?=!$config["spawn-npcs"] ? " selected" : ""?>>Désactivés</option>
+				<option value="1"<?=$serverConfig["spawn-npcs"] ? " selected" : ""?>>Activés</option>
+				<option value="0"<?=!$serverConfig["spawn-npcs"] ? " selected" : ""?>>Désactivés</option>
 			</select>
 		</div>
 	</div>
@@ -346,8 +335,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Monstres</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="spawn-monsters" class="form-control">
-				<option value="1"<?=$config["spawn-monsters"] ? " selected" : ""?>>Activés</option>
-				<option value="0"<?=!$config["spawn-monsters"] ? " selected" : ""?>>Désactivés</option>
+				<option value="1"<?=$serverConfig["spawn-monsters"] ? " selected" : ""?>>Activés</option>
+				<option value="0"<?=!$serverConfig["spawn-monsters"] ? " selected" : ""?>>Désactivés</option>
 			</select>
 		</div>
 	</div>
@@ -355,8 +344,8 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Animaux</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="spawn-animals" class="form-control">
-				<option value="1"<?=$config["spawn-animals"] ? " selected" : ""?>>Activés</option>
-				<option value="0"<?=!$config["spawn-animals"] ? " selected" : ""?>>Désactivés</option>
+				<option value="1"<?=$serverConfig["spawn-animals"] ? " selected" : ""?>>Activés</option>
+				<option value="0"<?=!$serverConfig["spawn-animals"] ? " selected" : ""?>>Désactivés</option>
 			</select>
 		</div>
 	</div>
@@ -364,15 +353,15 @@ foreach ($serversVersions as $type=>$versions) {
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Hardcore</label>
 		<div class="col-lg-9 col-xl-6">
 			<select name="hardcore" class="form-control">
-				<option value="1"<?=$config["hardcore"] ? " selected" : ""?>>Activé</option>
-				<option value="0"<?=!$config["hardcore"] ? " selected" : ""?>>Désactivé</option>
+				<option value="1"<?=$serverConfig["hardcore"] ? " selected" : ""?>>Activé</option>
+				<option value="0"<?=!$serverConfig["hardcore"] ? " selected" : ""?>>Désactivé</option>
 			</select>
 		</div>
 	</div>
 	<div class="form-group row">
 		<label class="col-xl-3 col-lg-3 col-form-label text-right">Mot de passe RCON</label>
 		<div class="col-lg-9 col-xl-6">
-			<input class="form-control form-control-lg form-control-solid" type="text" name="rcon-password" value="<?=htmlspecialchars($config["rcon_password"])?>" required>
+			<input class="form-control form-control-lg form-control-solid" type="text" name="rcon-password" value="<?=htmlspecialchars($serverConfig["rcon_password"])?>" required>
 		</div>
 	</div>
 	<div class="form-group row">
