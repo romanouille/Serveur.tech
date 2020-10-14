@@ -33,7 +33,7 @@
 						</div>
 						<div class="my-lg-0 my-1">
 <?php
-if ($server->isStarted()) {
+if ($isStarted) {
 ?>
 							<a href="/ServerReboot.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrer</a>
 							<a href="/ServerForcedReboot.php?id=<?=$_GET["id"]?>" class="btn btn-sm btn-info font-weight-bolder text-uppercase">Redémarrage forcé</a>

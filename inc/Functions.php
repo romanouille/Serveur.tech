@@ -13,7 +13,7 @@ function renderPage() {
 		$page = str_replace($comment, "", $page);
 	}
 	
-	$page = str_replace("  ", " ", str_replace("	", "", str_replace("\n", "", $page)));
+	//$page = str_replace("  ", " ", str_replace("	", "", str_replace("\n", "", $page)));
 	
 	echo $page;
 }

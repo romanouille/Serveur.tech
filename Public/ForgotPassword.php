@@ -71,6 +71,7 @@ if (count($_POST) > 0) {
 							"2fa" => true,
 							"admin" => $user->isAdmin()
 						];
+						$user->createSession();
 						
 						header("Location: /");
 						exit;

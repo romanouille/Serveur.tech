@@ -32,6 +32,7 @@ class Server {
 		$key->setPassword(file_get_contents("Auth/Password"));
 		$key->loadKey(file_get_contents("Auth/Private.ppk"));
 		if (!$this->ssh->login("user", $key)) {
+			trigger_error("Erreur auth SSH");
 			return false;
 		}
 		
@@ -100,7 +101,7 @@ class Server {
 	 * Kill le serveur
 	 */
 	public function forcedStop() {
-		return $this->ssh->exec("pkill java");
+		return $this->ssh->exec("pkill -9 java");
 	}
 	
 	/**
@@ -227,9 +228,7 @@ class Server {
 	public function reset() {
 		global $db, $config, $offers;
 		
-		if ($this->isStarted()) {
-			$this->forcedStop();
-		}
+		$this->forcedStop();
 		
 		$this->ssh->exec("rm -R ~/*");
 		$serverConfig = $this->getConfig();
@@ -600,7 +599,7 @@ class Server {
 			return [];
 		}
 		
-		$query = $db->prepare("SELECT id FROM servers WHERE expiration = -1");
+		$query = $db->prepare("SELECT id FROM servers WHERE expiration = -1 ORDER BY id ASC");
 		$query->execute();
 		$data = $query->fetchAll();
 		$result = [];

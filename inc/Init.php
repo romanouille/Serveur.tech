@@ -34,6 +34,15 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 if (!empty($_SESSION)) {
 	$user = new User($_SESSION["phone"]);
+	$user->createLogEntry();
+	
+	if ($user->sessionExists()) {
+		$user->updateSession();
+	} else {
+		session_destroy();
+		header("Location: /");
+		exit;
+	}
 }
 
 $countries = [
@@ -46,7 +55,7 @@ $offers = [
 		"cpu" => 1,
 		"ssd" => 10,
 		"price" => 0,
-		"location" => "Londres"
+		"location" => "Royaume-Uni"
 	],
 	2 => [
 		"ram" => 8,

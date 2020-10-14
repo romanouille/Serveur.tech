@@ -44,6 +44,7 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 					"2fa" => false,
 					"admin" => $user->isAdmin()
 				];
+				$user->createSession();
 				
 				if ($user->sendSmsCode()) {
 					header("Location: /2FA.php");
@@ -143,6 +144,7 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 				"2fa" => false,
 				"admin" => false
 			];
+			$user->createSession();
 			
 			$user = new User($_POST["phonenumber"]);
 			$user->sendSmsCode();

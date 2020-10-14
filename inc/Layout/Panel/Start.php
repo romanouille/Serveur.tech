@@ -88,6 +88,12 @@ if (!$_SESSION["admin"]) {
 <?php
 }
 ?>
+								<li class="menu-item">
+									<a href="/Account.php" class="menu-link"><span class="menu-text">Mon compte</span><i class="menu-arrow"></i></a>
+								</li>
+								<li class="menu-item">
+									<a href="/Logout.php?token=<?=$token?>" class="menu-link"><span class="menu-text">Déconnexion</span><i class="menu-arrow"></i></a>
+								</li>
 							</ul>
 							<!--end::Header Nav-->
 						</div>

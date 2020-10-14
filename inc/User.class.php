@@ -426,4 +426,94 @@ class User {
 		
 		return $data["nb"] >= 1;
 	}
+	
+	/**
+	 * Modifie le profil de l'utilisateur
+	 *
+	 * [...]
+	 *
+	 * @return bool Résultat
+	 */
+	public function updateProfile(string $firstname, string $lastname, string $company, string $address1, string $address2, string $city, string $postalcode) {
+		global $db;
+		
+		$query = $db->prepare("UPDATE users SET first_name = :first_name, last_name = :last_name, company_name = :company_name, address1 = :address1, address2 = :address2, city = :city, postal_code = :postal_code WHERE phone = :phone");
+		$query->bindValue(":first_name", $firstname, PDO::PARAM_STR);
+		$query->bindValue(":last_name", $lastname, PDO::PARAM_STR);
+		$query->bindValue(":company_name", $company, PDO::PARAM_STR);
+		$query->bindValue(":address1", $address1, PDO::PARAM_STR);
+		$query->bindValue(":address2", $address2, PDO::PARAM_STR);
+		$query->bindValue(":city", $city, PDO::PARAM_STR);
+		$query->bindValue(":postal_code", $postalcode, PDO::PARAM_STR);
+		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	/**
+	 * Crée une entrée dans les logs de l'utilisateur
+	 *
+	 * @return bool Résultat
+	 */
+	public function createLogEntry() {
+		global $db;
+		
+		$query = $db->prepare("INSERT INTO users_logs(owner, ip, port, uri, user_agent, session) VALUES(:owner, :ip, :port, :uri, :user_agent, :session)");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+		$query->bindValue(":port", $_SERVER["REMOTE_PORT"], PDO::PARAM_INT);
+		$query->bindValue(":uri", substr($_SERVER["REQUEST_URI"], 0, 255), PDO::PARAM_STR);
+		$query->bindValue(":user_agent", substr($_SERVER["HTTP_USER_AGENT"], 0, 255), PDO::PARAM_STR);
+		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	/**
+	 * Vérifie si une session existe
+	 *
+	 * @param string $session Session
+	 *
+	 * @return bool Résultat
+	 */
+	public function sessionExists() : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT COUNT(*) AS nb FROM users_sessions WHERE session = :session");
+		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["nb"] == 1;
+	}
+	
+	public function createSession() : bool {
+		global $db;
+		
+		$query = $db->prepare("INSERT INTO users_sessions(owner, session, ip, created, last_seen) VALUES(:owner, :session, :ip, ".time().", ".time().")");
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	public function updateSession() {
+		global $db;
+		
+		$query = $db->prepare("UPDATE users_sessions SET ip = :ip, last_seen = ".time()." WHERE owner = :owner");
+		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	public function deleteSession() {
+		global $db;
+		
+		$query = $db->prepare("DELETE FROM users_sessions WHERE session = :session");
+		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
 }

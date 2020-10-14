@@ -60,7 +60,7 @@ if (count($_POST) > 0) {
 }
 
 $serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | Arrêter";
+$breadcrumb = "Serveur #{$_GET["id"]} | Arrêt forcé";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";
