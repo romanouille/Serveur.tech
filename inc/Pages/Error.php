@@ -26,20 +26,24 @@ require "inc/Layout/Start.php";
 			</div>
 			
 <?php
-if ($code == 400) {
-	echo "Les données que vous avez envoyé sont incorrectes.";
-} elseif ($code == 401) {
-	echo "Authentification nécessaire.";
-} elseif ($code == 403) {
-	echo "Accès refusé.";
-} elseif ($code == 404) {
-	echo "Page introuvable.";
-} elseif ($code == 500) {
-	echo "Un problème interne est survenu, veuillez contacter un administrateur.";
-} elseif ($code == 503) {
-	echo "Cette section est temporairement indisponible, veuillez réessayer plus tard.";
+if (!isset($errorMessage)) {
+	if ($code == 400) {
+		echo "Les données que vous avez envoyé sont incorrectes.";
+	} elseif ($code == 401) {
+		echo "Authentification nécessaire.";
+	} elseif ($code == 403) {
+		echo "Accès refusé.";
+	} elseif ($code == 404) {
+		echo "Page introuvable.";
+	} elseif ($code == 500) {
+		echo "Un problème interne est survenu, veuillez contacter un administrateur.";
+	} elseif ($code == 503) {
+		echo "Cette section est temporairement indisponible, veuillez réessayer plus tard.";
+	} else {
+		echo "Erreur $code.";
+	}
 } else {
-	echo "Erreur $code.";
+	echo $errorMessage;
 }
 ?>
 		</div>

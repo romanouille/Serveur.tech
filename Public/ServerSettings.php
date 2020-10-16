@@ -5,7 +5,7 @@ chdir("../");
 require "inc/Init.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
+if (!isset($user) || !$session["has2fa"]) {
 	$_SESSION = [];
 	
 	header("Location: /Auth.php");
@@ -170,7 +170,7 @@ if (count($_POST) > 0) {
 }
 
 $serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | Paramètres";
+$breadcrumb = "Paramètres | Serveur #{$_GET["id"]}";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";

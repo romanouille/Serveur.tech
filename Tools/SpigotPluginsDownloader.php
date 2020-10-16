@@ -7,11 +7,11 @@ $curl = curl_init();
 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($curl, CURLOPT_ENCODING, "gzip");
-curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36");
+curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36");
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_COOKIE, "cf_clearance=f88ffb0bcdea96a3b820527b93c0984ba68eb589-1602672656-0-1z3242204dz1fba760bza4101264-150");
+curl_setopt($curl, CURLOPT_COOKIE, "cf_clearance=09b58f104e22f83f9fa3a07bd32c1b3453ba57fa-1602847067-0-1z3242204dz1fba760bza4101264-150");
 
-for ($i = 152; $i <= 2702; $i++) {
+for ($i = 1; $i <= 10; $i++) {
 	curl_setopt($curl, CURLOPT_URL, "https://www.spigotmc.org/resources/categories/spigot.4/?page=$i");
 	$page = curl_exec($curl);
 	
@@ -55,9 +55,9 @@ for ($i = 152; $i <= 2702; $i++) {
 			exit("Cloudflared\n");
 		}
 		
-		if (!file_put_contents("Tools/plugins/$jarName.".(strstr($fileType, ".zip") ? "zip" : "jar"), $page)) {
+		if (!file_put_contents("Tools/Plugins/$jarName.".(strstr($fileType, ".zip") ? "zip" : "jar"), $page)) {
 			echo "Write failed\n";
-			unlink("Tools/plugins/$jarName.jar");
+			unlink("Tools/Plugins/$jarName.jar");
 			continue;
 		}
 		

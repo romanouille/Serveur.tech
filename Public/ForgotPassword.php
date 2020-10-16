@@ -65,13 +65,8 @@ if (count($_POST) > 0) {
 				if ($user->exists()) {
 					if ($user->getValidationCode() == $_POST["code"]) {
 						$user->changePassword($_POST["password"]);
-						$_SESSION = [
-							"phone" => $_POST["phone"],
-							"userId" => $user->getId(),
-							"2fa" => true,
-							"admin" => $user->isAdmin()
-						];
-						$user->createSession();
+						$userProfile = $user->getProfile();
+						$user->createSession($userProfile["has2fa"], $userProfile["admin"]);
 						
 						header("Location: /");
 						exit;

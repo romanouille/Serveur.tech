@@ -5,9 +5,7 @@ chdir("../");
 require "inc/Init.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -32,7 +30,7 @@ if (!$user->hasServer($_GET["id"])) {
 }
 
 $serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | Console";
+$breadcrumb = "Console | Serveur #{$_GET["id"]}";
 
 $server->sshAuth();
 $isStarted = $server->isStarted();

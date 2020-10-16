@@ -4,8 +4,13 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($_SESSION["2fa"]) || $_SESSION["2fa"]) {
-	header("Location: /");
+if (!isset($user)) {
+	header("Location: /Auth.php");
+	exit;
+}
+
+if ($session["has2fa"]) {
+	header("Location: /ClientArea.php");
 	exit;
 }
 
@@ -23,9 +28,9 @@ if (count($_POST) > 0) {
 	}
 	
 	if (empty($messages)) {
-		$user = new User($_SESSION["phone"]);
+		$user = new User($userProfile["phone"]);
 		if ($user->getValidationCode() == $_POST["code"]) {
-			$_SESSION["2fa"] = true;
+			$user->validate2fa();
 			header("Location: /ClientArea.php");
 			exit;
 		} else {
@@ -44,7 +49,7 @@ require "inc/Layout/Start.php";
 			<div class="col-lg-12">
 				<div class="wrapper">
 					<div class="heading">Authentification SMS</div>
-					<div class="subheding">Un code de validation a été envoyé au <?=$_SESSION["phone"]?>.</div>
+					<div class="subheding">Un code de validation a été envoyé au <?=$userProfile["phone"]?>.</div>
 				</div>
 			</div>
 		</div>
@@ -87,7 +92,7 @@ if (isset($messages) && !empty($messages)) {
 							</div>
 						</form>
 					</div>
-					
+					<b>DEBUG</b> : le code de validation est <b><?=$user->getValidationCode()?></b>
 				</div>
 			</div>
 		</div>

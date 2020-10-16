@@ -5,9 +5,7 @@ chdir("../");
 require "inc/Init.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -52,7 +50,7 @@ if (count($_POST) > 0) {
 }
 
 $serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | FTP";
+$breadcrumb = "FTP | Serveur #{$_GET["id"]}";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";

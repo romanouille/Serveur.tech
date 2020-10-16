@@ -7,7 +7,7 @@ require "inc/MariaDB.class.php";
 require "inc/Paypal.class.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }

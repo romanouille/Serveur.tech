@@ -733,10 +733,25 @@ class Server {
 			$this->ssh->exec("wget -O plugins/$jarName.jar http://$storageServer/Plugins/$jarName.jar");
 		} else {
 			$this->ssh->exec("wget -O plugins/$jarName.zip http://$storageServer/Plugins/$jarName.zip");
-			$this->ssh->exec("unzip plugins/$jarName.zip");
-			$this->ssh->exec("rm plugin/$jarName.zip");
+			$this->ssh->exec("unzip plugins/$jarName.zip -d plugins/");
+			$this->ssh->exec("rm plugins/$jarName.zip");
 		}
 		
 		return true;
 	}
+	
+	/**
+	 * Vérifie si le système d'installation de plugins est disponible
+	 *
+	 * @return bool Résultat
+	 */
+	 public static function isPluginsAutoInstallAvailable() : bool {
+		 global $db;
+		 
+		 $query = $db->prepare("SELECT COUNT(*) AS nb FROM plugins");
+		 $query->execute();
+		 $data = $query->fetch();
+		 
+		 return $data["nb"] > 0;
+	 }
 }

@@ -5,14 +5,12 @@ chdir("../");
 require "inc/Admin.class.php";
 require "inc/Init.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {	
 	header("Location: /Auth.php");
 	exit;
 }
 
-if (!$_SESSION["admin"]) {
+if (!$session["admin"]) {
 	http_response_code(403);
 	require "inc/Pages/Panel_error.php";
 	exit;

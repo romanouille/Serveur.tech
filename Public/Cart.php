@@ -6,9 +6,7 @@ require "inc/Init.php";
 require "inc/Paypal.class.php";
 require "inc/Server.class.php";
 
-if (!isset($_SESSION["2fa"]) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -21,6 +19,7 @@ if (!isset($_GET["type"]) || !is_string($_GET["type"]) || !isset($offers[$_GET["
 
 if (!Server::isAvailable($_GET["type"])) {
 	http_response_code(503);
+	$errorMessage = "Cette gamme de serveurs est en rupture de stock, veuillez réessayer plus tard.";
 	require "inc/Pages/Error.php";
 	exit;
 }

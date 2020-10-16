@@ -209,7 +209,96 @@ ul {
 					<tbody>
 						<tr>
 							<td>Date d'ouverture
-							<td>13/10/2020
+							<td>16/10/2020
+						</tr>
+						
+						<tr>
+							<td>Type de tâche
+							<td>Amélioration
+						</tr>
+						
+						<tr>
+							<td>Catégorie
+							<td>Global
+						</tr>
+						
+						<tr>
+							<td>État
+							<td>Fermé
+						</tr>
+					</tbody>
+				</table>
+				
+				<p>					
+					Aujourd'hui, il a été fait :<br><br>
+					
+					<ul>
+						<li>Relier le site Internet à Reseau.io dans le but de limiter les inscriptions uniquement aux IP Françaises
+						<li>Réimporter les plugins en base de données et sur les serveurs de stockage
+						<li>Mettre en place les backups automatiques sur le serveur hôte hébergeant les serveurs MC-1
+						<li>Mettre en place une adresse e-mail de contact
+						<li>Développement d'un script de vérification automatique permettant de vérifier si les identifiants FTP/RCON/MySQL sont valides pour chaque serveur
+					</ul>
+					<br><br>
+					
+					A faire :<br>
+					<ul>
+						<li>/
+					</ul>
+				</p>
+			</div>
+			
+			<div class="block">
+				<table class="task-details">
+					<tbody>
+						<tr>
+							<td>Date d'ouverture
+							<td>15/10/2020
+						</tr>
+						
+						<tr>
+							<td>Type de tâche
+							<td>Amélioration
+						</tr>
+						
+						<tr>
+							<td>Catégorie
+							<td>Global
+						</tr>
+						
+						<tr>
+							<td>État
+							<td>Fermé
+						</tr>
+					</tbody>
+				</table>
+				
+				<p>					
+					Aujourd'hui, il a été fait :<br><br>
+					
+					<ul>
+						<li>Mise à jour du site commercial
+						<li>Mise en place d'un serveur hôte qui hébergera des serveurs MC-1
+						<li>Mise en ligne du site en bêta fermée : <a href="/" title="Index" target="_blank"><b>https://serveur.tech/</b></a>, le mot de passe est <b>OpX234</b>
+					</ul>
+					<br><br>
+					
+					A faire :<br>
+					<ul>
+						<li>Relier le site Internet à Reseau.io dans le but de limiter les inscriptions uniquement aux IP Françaises
+						<li>Réimporter les plugins en base de données et sur les serveurs de stockage
+						<li>Mettre en place les backups automatiques sur le serveur hôte hébergeant les serveurs MC-1
+						<li>Mettre en place une adresse e-mail de contact
+					</ul>
+				</p>
+			</div>
+			
+			<div class="block">
+				<table class="task-details">
+					<tbody>
+						<tr>
+							<td>Date d'ouverture
+							<td>14/10/2020
 						</tr>
 						
 						<tr>

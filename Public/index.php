@@ -17,7 +17,7 @@ require "inc/Layout/Start.php";
 						<div class="heading">
 							Serveurs Minecraft
 						</div>
-						<h3 class="subheading">Votre serveur Minecraft hébergé à partir de <b class="c-pink">4,99€/mois</b><br>
+						<h3 class="subheading">Votre serveur Minecraft hébergé à partir de <b class="c-pink">9,99€/mois</b><br>
 						</h3>
 						<a href="#pricing" class="btn btn-default-yellow-fill mr-3">Voir les prix</a>
 						<!--<a href="#" class="btn btn-default-pink-fill">Learn more</a>-->
@@ -37,15 +37,15 @@ require "inc/Layout/Start.php";
 						<img class="svg mb-3" src="fonts/svg/dedicated.svg" alt="">
 						<div class="title">MC-1</div>
 						<div class="fromer"></div>
-						<div class="price">2,99<sup>€</sup> <span class="period">/mois</span></div>
+						<div class="price">0,00<sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>1x 2.2GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>2 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>20 Go SSD</span></li>
-						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>20 Go SSD</span></li>
-						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Basique</span></li>
-						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>Londres</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>1x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>1 Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>10 Go SSD</span></li>
+						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Non inclus</span></li>
+						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
+						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>
 						<li><a href="/Cart.php?type=1" class="btn btn-default-yellow-fill question">Commander</a>
 					</ul>
 				</div>
@@ -59,10 +59,10 @@ require "inc/Layout/Start.php";
 						<div class="price">9,99<sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>2x 3.6GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>8 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>40 Go SSD</span></li>
-						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>40 Go SSD</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>2x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>4 Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>20 Go SSD</span></li>
+						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Inclus</span></li>
 						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
 						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>
 						<li><a href="/Cart.php?type=2" class="btn btn-default-yellow-fill question">Commander</a>
@@ -75,13 +75,13 @@ require "inc/Layout/Start.php";
 						<img class="svg mb-3" src="fonts/svg/dedicated.svg" alt="">
 						<div class="title">MC-3</div>
 						<div class="fromer"></div>
-						<div class="price">19,99<sup>€</sup> <span class="period">/mois</span></div>
+						<div class="price">14,99<sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>4x 3.6GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>16 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>80 Go SSD</span></li>
-						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>80 Go SSD</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>3x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>8 Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>40 Go SSD</span></li>
+						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Inclus</span></li>
 						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
 						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>
 						<li><a href="/Cart.php?type=3" class="btn btn-default-yellow-fill question">Commander</a>
@@ -147,7 +147,7 @@ require "inc/Layout/Start.php";
 				<div class="col-md-12 col-lg-5 offset-lg-1">
 					<div class="info-content">
 						<h4>Anti-DDoS Game</h4>
-						<p>Les serveurs MC-2 et MC-3 sont équipés de l'anti-DDoS OVH Game, vous garantissant une protection fiable pour votre serveur.</p>
+						<p>Nos serveurs sont équipés de l'anti-DDoS OVH Game, vous garantissant une protection fiable contre les attaques externes.</p>
 					</div>
 					<!--<a href="#" class="btn btn-default-yellow-fill mt-3">Protect now</a>-->
 				</div>
@@ -182,7 +182,7 @@ require "inc/Layout/Start.php";
 	</div>
 </section>
 <!-- ***** HELP ***** -->
-<section class="help pt-4 pb-80">
+<!--<section class="help pt-4 pb-80">
 	<div class="container">
 		<div class="service-wrap">
 			<div class="row">
@@ -200,7 +200,7 @@ require "inc/Layout/Start.php";
 						</a>
 					</div>
 				</div>
-				<!--<div class="col-sm-12 col-md-6 col-lg-6">
+				<div class="col-sm-12 col-md-6 col-lg-6">
 					<div class="help-container">
 						<div class="plans badge feat bg-grey"><i class="fas fa-long-arrow-alt-right"></i></div>
 						<a href="dedicated" class="help-item">
@@ -213,10 +213,10 @@ require "inc/Layout/Start.php";
 							</div>
 						</a>
 					</div>
-				</div>-->
+				</div>
 			</div>
 		</div>
 	</div>
-</section>
+</section>-->
 <?php
 require "inc/Layout/End.php";

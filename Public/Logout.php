@@ -4,15 +4,13 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
-	header("Location: /Auth.php");
+if (!isset($user) || !$session["has2fa"]) {
+	header("Location: /");
 	exit;
 }
 
 if (isset($_GET["token"]) && is_string($_GET["token"]) && $_GET["token"] == $token) {
-	session_destroy();
+	$user->deleteSession();
 }
 
 header("Location: /");

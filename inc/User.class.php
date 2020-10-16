@@ -68,7 +68,7 @@ class User {
 	public function getProfile() : array {
 		global $db;
 		
-		$query = $db->prepare("SELECT phone, password, first_name, last_name, company_name, address1, address2, city, postal_code, country FROM users WHERE phone = :phone");
+		$query = $db->prepare("SELECT phone, password, first_name, last_name, company_name, address1, address2, city, postal_code, country, has2fa, admin FROM users WHERE phone = :phone");
 		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
 		$query->execute();
 		$data = $query->fetch();
@@ -77,12 +77,28 @@ class User {
 	}
 	
 	/**
+	 * Vérifie si l'utilisateur a l'auth 2FA activée
+	 *
+	 * @return bool Résultat
+	 */
+	public function has2fa() : bool {
+		global $db;
+		
+		$query = $db->prepare("SELECT 2fa FROM users WHERE phone = :phone");
+		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
+		$query->execute();
+		$data = $query->fetch();
+		
+		return $data["2fa"] == 1;
+	}
+	
+	/**
 	 * Envoie un code SMS
 	 *
 	 * @return bool Résultat
 	 */
 	public function sendSmsCode() : bool {
-		global $config, $db;
+		global $config, $db, $dev;
 		
 		$code = random_int(1000000000, 9999999999);
 		
@@ -91,8 +107,12 @@ class User {
 		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
 		$query->execute();
 		
-		$sms = new SMS($config["bulksms"]["token_id"], $config["bulksms"]["token_secret"]);
-		return $sms->send("+33".substr($this->phone, 1), "Votre code de validation Serveur.tech est : $code");
+		if (!$dev) {
+			$sms = new SMS($config["bulksms"]["token_id"], $config["bulksms"]["token_secret"]);
+			return $sms->send("+33".substr($this->phone, 1), "Votre code de validation Serveur.tech est : $code");
+		} else {
+			return true;
+		}
 	}
 	
 	/**
@@ -125,6 +145,10 @@ class User {
 		$query->bindValue(":phone", $this->phone, PDO::PARAM_STR);
 		$query->execute();
 		$data = $query->fetch();
+		
+		if (!isset($data["password"])) {
+			return false;
+		}
 		
 		return password_verify($password, trim($data["password"]));
 	}
@@ -266,9 +290,9 @@ class User {
 	 * @return array Liste des serveurs de l'utilisateur
 	 */
 	public function getServersList() : array {
-		global $db;
+		global $db, $session;
 		
-		if (!$_SESSION["admin"]) {
+		if (!$session["admin"]) {
 			$query = $db->prepare("SELECT id, ip, type, expiration FROM servers WHERE owner = :owner ORDER BY id ASC");
 			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
 		} else {
@@ -300,9 +324,9 @@ class User {
 	 * @return array Résultat
 	 */
 	public function getInvoicesList() : array {
-		global $db;
+		global $db, $session;
 		
-		if (!$_SESSION["admin"]) {
+		if (!$session) {
 			$query = $db->prepare("SELECT id, type, price, microtime FROM users_invoices WHERE owner = :owner");
 			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
 		} else {
@@ -337,9 +361,9 @@ class User {
 	 * @return bool Résultat
 	 */
 	public function hasServer(int $serverId) : bool {
-		global $db;
+		global $db, $session;
 		
-		if (!$_SESSION["admin"]) {
+		if (!$session["admin"]) {
 			$query = $db->prepare("SELECT COUNT(*) AS nb FROM servers WHERE id = :id AND owner = :owner");
 			$query->bindValue(":id", $serverId, PDO::PARAM_INT);
 			$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
@@ -463,8 +487,8 @@ class User {
 		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
 		$query->bindValue(":port", $_SERVER["REMOTE_PORT"], PDO::PARAM_INT);
 		$query->bindValue(":uri", substr($_SERVER["REQUEST_URI"], 0, 255), PDO::PARAM_STR);
-		$query->bindValue(":user_agent", substr($_SERVER["HTTP_USER_AGENT"], 0, 255), PDO::PARAM_STR);
-		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->bindValue(":user_agent", isset($_SERVER["HTTP_USER_AGENT"]) ? substr($_SERVER["HTTP_USER_AGENT"], 0, 255) : "", PDO::PARAM_STR);
+		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
 		
 		return $query->execute();
 	}
@@ -476,24 +500,41 @@ class User {
 	 *
 	 * @return bool Résultat
 	 */
-	public function sessionExists() : bool {
+	public static function sessionExists($session) : bool {
 		global $db;
 		
 		$query = $db->prepare("SELECT COUNT(*) AS nb FROM users_sessions WHERE session = :session");
-		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->bindValue(":session", $session, PDO::PARAM_STR);
 		$query->execute();
 		$data = $query->fetch();
 		
-		return $data["nb"] == 1;
+		return $data["nb"] > 0;
 	}
 	
-	public function createSession() : bool {
+	public static function getSessionData($session) : array {
 		global $db;
 		
-		$query = $db->prepare("INSERT INTO users_sessions(owner, session, ip, created, last_seen) VALUES(:owner, :session, :ip, ".time().", ".time().")");
+		$query = $db->prepare("SELECT owner, ip, created, last_seen, has2fa, admin FROM users_sessions WHERE session = :session");
+		$query->bindValue(":session", $session, PDO::PARAM_STR);
+		$query->execute();
+		$data = array_map("trim", $query->fetch());
+		
+		return $data;
+	}
+	
+	public function createSession(bool $has2fa = true, bool $admin = false) : bool {
+		global $db;
+		
+		$sessionName = sha1(random_bytes(32).microtime(1).$this->phone);
+		
+		$query = $db->prepare("INSERT INTO users_sessions(owner, session, ip, created, last_seen, has2fa, admin) VALUES(:owner, :session, :ip, ".time().", ".time().", :has2fa, :admin)");
 		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
-		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->bindValue(":session", $sessionName, PDO::PARAM_STR);
 		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+		$query->bindValue(":has2fa", $has2fa, PDO::PARAM_INT);
+		$query->bindValue(":admin", $admin, PDO::PARAM_INT);
+		
+		setcookie("session", $sessionName, time()+31536000, "/", "", $_SERVER["SERVER_PORT"] == 443, true);
 		
 		return $query->execute();
 	}
@@ -501,9 +542,9 @@ class User {
 	public function updateSession() {
 		global $db;
 		
-		$query = $db->prepare("UPDATE users_sessions SET ip = :ip, last_seen = ".time()." WHERE owner = :owner");
+		$query = $db->prepare("UPDATE users_sessions SET ip = :ip, last_seen = ".time()." WHERE session = :session");
 		$query->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
-		$query->bindValue(":owner", $this->phone, PDO::PARAM_STR);
+		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
 		
 		return $query->execute();
 	}
@@ -512,7 +553,17 @@ class User {
 		global $db;
 		
 		$query = $db->prepare("DELETE FROM users_sessions WHERE session = :session");
-		$query->bindValue(":session", session_id(), PDO::PARAM_STR);
+		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
+		setcookie("session", null, -1);
+		
+		return $query->execute();
+	}
+	
+	public function validate2fa() : bool {
+		global $db;
+		
+		$query = $db->prepare("UPDATE users_sessions SET has2fa = 1 WHERE session = :session");
+		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
 		
 		return $query->execute();
 	}

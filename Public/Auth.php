@@ -15,6 +15,13 @@ if (isset($user)) {
 	exit;
 }
 
+if (!isFrenchIp()) {
+	http_response_code(403);
+	$errorMessage = "Votre adresse IP doit être située en France afin d'accéder à cette section du site.";
+	require "inc/Pages/Error.php";
+	exit;
+}
+
 if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && in_array($_POST["mode"], ["login", "register"])) {
 	$messages = [];
 	
@@ -37,25 +44,23 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 		
 		if (empty($messages)) {
 			$user = new User($_POST["phonenumber"]);
-			if ($user->verifyPassword($_POST["password"])) {
-				$_SESSION = [
-					"phone" => (string)$_POST["phonenumber"],
-					"userId" => $user->getId(),
-					"2fa" => false,
-					"admin" => $user->isAdmin()
-				];
-				$user->createSession();
-				
-				if ($user->sendSmsCode()) {
-					header("Location: /2FA.php");
-					exit;
+			if ($user->exists()) {
+				if ($user->verifyPassword($_POST["password"])) {
+					$userProfile = $user->getProfile();
+					$user->createSession($userProfile["has2fa"] ? 0 : 1, $userProfile["admin"]);
+					
+					if ($userProfile["has2fa"] && $user->sendSmsCode()) {
+						header("Location: /2FA.php");
+						exit;
+					} else {
+						header("Location: /ClientArea.php");
+						exit;
+					}
 				} else {
-					$_SESSION["2fa"] = true;
-					header("Location: /ClientArea.php");
-					exit;
+					$messages[] = "Les identifiants spécifiés sont incorrects.";
 				}
 			} else {
-				$messages[] = "Les identifiants spécifiés sont incorrects.";
+				$messages[] = "Le numéro de téléphone mobile spécifié n'est pas inscrit.";
 			}
 		}
 	} elseif ($_POST["mode"] == "register") {
@@ -138,18 +143,12 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 		
 		if (empty($messages)) {
 			$userId = User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);
-			$_SESSION = [
-				"phone" => (string)$_POST["phonenumber"],
-				"userId" => $userId,
-				"2fa" => false,
-				"admin" => false
-			];
 			$user->createSession();
 			
 			$user = new User($_POST["phonenumber"]);
-			$user->sendSmsCode();
+			$user->createSession();
 			
-			header("Location: /2FA.php");
+			header("Location: /ClientArea.php");
 			exit;
 		}
 	}
@@ -157,14 +156,21 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 	
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Connexion</title>
 		<meta name="description" content="">
-		<link href="img/favicon.ico" rel="shortcut icon">
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-180603057-1');
+		</script>
+		<link href="/assets/media/logos/logo.png" rel="shortcut icon">
 		<!-- Fonts -->
 		<link href="fonts/fontawesome/css/all.css" rel="stylesheet" media="none" onload="if(media!='all')media='all'">
 		<link href="fonts/cloudicon/cloudicon.css" rel="stylesheet" media="none" onload="if(media!='all')media='all'">

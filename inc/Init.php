@@ -1,28 +1,63 @@
 <?php
+$betapass = "OpX234";
+
+if (php_sapi_name() != "cli") {
+	if (!isset($_COOKIE["betapass"]) || $_COOKIE["betapass"] != $betapass) {
+		if (isset($_POST["betapass"])) {
+			if ($_POST["betapass"] == $betapass) {
+				setcookie("betapass", $betapass);
+				header("Location: {$_SERVER["REQUEST_URI"]}");
+				exit;
+			}
+		}
+		
+		http_response_code(401);
+?>
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Accès à la bêta fermée</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<style>
+			* {
+				font-family:Courier
+			}
+		</style>
+	</head>
+	
+	<body>
+		<h1>Accès à la bêta fermée</h1>
+		
+		<form method="post">
+			Entrez le mot de passe : <input type="password" name="betapass" placeholder="Mot de passe">&nbsp;<input type="submit">
+		</form>
+	</body>
+</html>
+<?php
+	exit;
+	}
+}
+
 require "vendor/autoload.php";
 require "inc/Captcha.class.php";
 require "inc/Functions.php";
 require "inc/User.class.php";
 
-$dev = PHP_OS == "WINNT";
+//$dev = PHP_OS == "WINNT";
+$dev = true;
 
-if ($dev) {
+if (php_sapi_name() != "cli") {
+	ob_start();
+	register_shutdown_function("renderPage");
+}
+
+if (php_sapi_name() == "cli" || $dev || in_array($_SERVER["REMOTE_ADDR"], ["193.251.51.117"])) {
 	error_reporting(-1);
 	ini_set("display_errors", true);
 } else {
 	error_reporting(0);
 	ini_set("display_errors", false);
-}
-
-if (php_sapi_name() != "cli") {
-	session_name("session");
-	session_set_cookie_params(31536000, "/", $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"] == 443, true);
-	session_start();
-	
-	ob_start();
-	register_shutdown_function("renderPage");
-	
-	$token = sha1(session_name());
 }
 
 $config = parse_ini_file(".env", true);
@@ -32,16 +67,17 @@ $captcha = new Captcha($config["recaptcha"]["public_key"], $config["recaptcha"][
 $db = new PDO("pgsql:host={$config["db"]["server"]};dbname={$config["db"]["name"]}", $config["db"]["username"], $config["db"]["password"], [PDO::ATTR_PERSISTENT => true]);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-if (!empty($_SESSION)) {
-	$user = new User($_SESSION["phone"]);
-	$user->createLogEntry();
-	
-	if ($user->sessionExists()) {
+if (isset($_COOKIE["session"])) {
+	if (User::sessionExists($_COOKIE["session"])) {
+		$session = User::getSessionData($_COOKIE["session"]);
+		
+		$user = new User($session["owner"]);
+		$userProfile = $user->getProfile();
+		$user->createLogEntry();
 		$user->updateSession();
+		$token = sha1($_COOKIE["session"]);
 	} else {
-		session_destroy();
-		header("Location: /");
-		exit;
+		setcookie("session", null, -1);
 	}
 }
 
@@ -55,20 +91,20 @@ $offers = [
 		"cpu" => 1,
 		"ssd" => 10,
 		"price" => 0,
-		"location" => "Royaume-Uni"
+		"location" => "France"
 	],
 	2 => [
-		"ram" => 8,
+		"ram" => 4,
 		"cpu" => 2,
-		"ssd" => 50,
+		"ssd" => 20,
 		"price" => 14.99,
 		"location" => "France"
 	],
 	3 => [
-		"ram" => 16,
-		"cpu" => 4,
+		"ram" => 8,
+		"cpu" => 3,
 		"ssd" => 40,
-		"price" => 19.99,
+		"price" => 14.99,
 		"location" => "France"
 	]
 ];

@@ -4,9 +4,7 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -32,6 +30,10 @@ if (count($_POST) > 0) {
 		} elseif ($_POST["new_password"] != $_POST["new_password_confirmation"]) {
 			$messages[] = "Les nouveaux mots de passe ne correspondent pas.";
 		}
+	}
+	
+	if (!$captcha->check()) {
+		$messages[] = "Vous devez prouver que vous n'êtes pas un robot.";
 	}
 	
 	if (empty($messages)) {
@@ -89,6 +91,12 @@ if (isset($messages)) {
 					<label class="col-xl-3 col-lg-3 col-form-label text-right">Confirmez le nouveau mot de passe</label>
 					<div class="col-lg-9 col-xl-6">
 						<input class="form-control form-control-lg form-control-solid" type="password" name="new_password_confirmation" required>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-xl-3 col-lg-3 col-form-label text-right"></label>
+					<div class="col-lg-9 col-xl-6">
+						<?=$captcha->create()?>
 					</div>
 				</div>
 				<div class="form-group row">

@@ -6,9 +6,7 @@ require "inc/Init.php";
 require "inc/MariaDB.class.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -53,7 +51,7 @@ if (count($_POST) > 0) {
 }
 
 $serverConfig = $server->getConfig();
-$breadcrumb = "Serveur #{$_GET["id"]} | MySQL";
+$breadcrumb = "MySQL | Serveur #{$_GET["id"]}";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";
@@ -80,7 +78,7 @@ if (isset($messages) && !empty($messages)) {
 }
 ?>
 	
-	Serveur : <b><?=$offers[$serverConfig["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?></b> <br>
+	Serveur : <b>sql1.serveur.tech</b> <br>
 	Nom d'utilisateur : <b><?=$serverConfig["ip"]?></b><br>
 	Mot de passe : <b><?=$serverConfig["mysql_password"]?></b>
 	<br><br>

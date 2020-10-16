@@ -5,9 +5,24 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="cache-control" content="max-age=604800, public" />
-		<title>Antler</title>
-		<meta name="description" content="">
-		<link href="img/favicon.ico" rel="shortcut icon">
+		<title>Serveur.tech : hébergement de serveurs Minecraft</title>
+		<meta name="description" content="Hébergeur de serveur Minecraft français incluant panneau d'administration, anti-DDoS, FTP et MySQL.">
+<?php
+if ($_SERVER["REMOTE_ADDR"] != "127.0.0.1") {
+?>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-180603057-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-180603057-1');
+		</script>
+<?php
+}
+?>
+		<link rel="icon" href="/assets/media/logos/logo.png">
 		<!-- Fonts -->
 		<link href="fonts/cloudicon/cloudicon.css" rel="stylesheet" media="none" onload="if(media!='all')media='all'">
 		<link href="fonts/fontawesome/css/all.css" rel="stylesheet" media="none" onload="if(media!='all')media='all'">

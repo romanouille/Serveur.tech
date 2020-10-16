@@ -3,9 +3,25 @@
 	<!--begin::Head-->
 	<head>
 		<meta charset="utf-8">
-		<title>...</title>
-		<meta name="description" content="...">
+		<title><?=$breadcrumb?> | Serveur.tech</title>
+		<meta name="description" content="<?=$breadcrumb?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<?php
+if ($_SERVER["REMOTE_ADDR"] != "127.0.0.1") {
+?>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-180603057-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-180603057-1');
+		</script>
+<?php
+}
+?>
+		<link rel="icon" href="/assets/media/logos/logo.png">
 		<!--begin::Fonts-->
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 		<!--end::Fonts-->
@@ -74,7 +90,7 @@
 									<a href="/Invoices.php" class="menu-link"><span class="menu-text">Factures</span><i class="menu-arrow"></i></a>
 								</li>
 <?php
-if (!$_SESSION["admin"]) {
+if (!$session["admin"]) {
 ?>
 								<li class="menu-item">
 									<a href="/Ticket.php" class="menu-link"><span class="menu-text">Support</span><i class="menu-arrow"></i></a>

@@ -4,9 +4,7 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -19,6 +17,12 @@ require "inc/Layout/Panel/Start.php";
 ?>
 <!--begin::Container-->
 <div class=" container ">
+	<div class="alert alert-info">
+		Voici les identifiants PayPal de test :<br><br>
+		
+		Adresse e-mail : <b>sb-dxcf5792106@personal.example.com</b><br>
+		Mot de passe : <b>d2r7UIl$</b>
+	</div>
 <?php
 if (!empty($servers)) {
 	foreach ($servers as $server) {

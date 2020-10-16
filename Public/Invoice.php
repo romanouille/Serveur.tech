@@ -4,7 +4,7 @@ chdir("../");
 
 require "inc/Init.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -22,7 +22,7 @@ if (empty($invoice)) {
 	exit;
 }
 
-if ($_SESSION["admin"]) {
+if ($session["admin"]) {
 	$user = new User($invoice["owner"]);
 }
 $userProfile = $user->getProfile();

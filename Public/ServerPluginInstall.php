@@ -5,9 +5,7 @@ chdir("../");
 require "inc/Init.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -33,6 +31,12 @@ if (!$server->exists()) {
 
 if (!$user->hasServer($_GET["id"])) {
 	http_response_code(403);
+	require "inc/Pages/Panel_error.php";
+	exit;
+}
+
+if (!Server::isPluginsAutoInstallAvailable()) {
+	http_response_code(503);
 	require "inc/Pages/Panel_error.php";
 	exit;
 }
@@ -67,7 +71,7 @@ if (count($_POST) > 0) {
 }
 
 
-$breadcrumb = "Serveur #{$_GET["id"]} | Plugin \"".htmlspecialchars($pluginData["name"])."\"";
+$breadcrumb = "Plugin \"".htmlspecialchars($pluginData["name"])."\" | Serveur #{$_GET["id"]}";
 
 require "inc/Layout/Panel/Start.php";
 require "inc/Layout/Panel/Tabs_start.php";

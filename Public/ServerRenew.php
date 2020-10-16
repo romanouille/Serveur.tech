@@ -6,9 +6,7 @@ require "inc/Init.php";
 require "inc/Paypal.class.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$_SESSION["2fa"]) {
-	$_SESSION = [];
-	
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }
@@ -43,7 +41,7 @@ if ($offers[$serverConfig["type"]]["price"] > 0) {
 	if ($serverConfig["expiration"]-time() > 259200) {
 		http_response_code(403);
 		$errorMessage = "Vous pourrez renouveler ce serveur à partir du ".date("d/m/Y à H:i:s", $serverConfig["expiration"]-259200);
-		require "inc/Pages/Panel_Panel_error.php";
+		require "inc/Pages/Panel_error.php";
 		exit;
 	}
 	
