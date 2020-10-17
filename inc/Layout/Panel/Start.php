@@ -110,6 +110,15 @@ if (!$session["admin"]) {
 								<li class="menu-item">
 									<a href="/Logout.php?token=<?=$token?>" class="menu-link"><span class="menu-text">Déconnexion</span><i class="menu-arrow"></i></a>
 								</li>
+<?php
+if (!$session["admin"] && $user->isAdmin()) {
+?>
+								<li class="menu-item">
+									<a href="/AdminAuth.php" class="menu-link"><span class="menu-text">Admin</span><i class="menu-arrow"></i></a>
+								</li>
+<?php
+}
+?>
 							</ul>
 							<!--end::Header Nav-->
 						</div>

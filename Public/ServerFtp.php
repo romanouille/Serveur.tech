@@ -82,6 +82,9 @@ if (isset($messages) && !empty($messages)) {
 	Mot de passe : <b><?=$serverConfig["ssh_password"]?></b>
 	<br><br>
 	
+	<a href="/net2ftp/" class="btn btn-light-primary font-weight-bold btn-sm" target="_blank">Cliquez ici pour accéder au WebFTP</a>
+	<br><br>
+	
 	<form method="post">
 		<input type="hidden" name="token" value="<?=$token?>">
 		<?=$captcha->create()?><br>

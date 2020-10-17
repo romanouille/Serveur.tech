@@ -47,9 +47,9 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 			if ($user->exists()) {
 				if ($user->verifyPassword($_POST["password"])) {
 					$userProfile = $user->getProfile();
-					$user->createSession($userProfile["has2fa"] ? 0 : 1, $userProfile["admin"]);
+					$user->createSession();
 					
-					if ($userProfile["has2fa"] && $user->sendSmsCode()) {
+					if ($user->sendSmsCode()) {
 						header("Location: /2FA.php");
 						exit;
 					} else {
@@ -142,13 +142,17 @@ if (count($_POST) > 0 && isset($_POST["mode"]) && is_string($_POST["mode"]) && i
 		}
 		
 		if (empty($messages)) {
-			$userId = User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);
-			$user->createSession();
-			
+			$userId = User::create($_POST["phonenumber"], $_POST["password"], $_POST["firstname"], $_POST["lastname"], $_POST["companyname"], $_POST["address1"], $_POST["address2"], $_POST["city"], $_POST["postcode"], $_POST["country"]);			
 			$user = new User($_POST["phonenumber"]);
 			$user->createSession();
 			
-			header("Location: /ClientArea.php");
+			if ($user->sendSmsCode()) {
+				header("Location: /2FA.php");
+			} else {
+				$user->validate2fa();
+				header("Location: /ClientArea.php");
+			}
+			
 			exit;
 		}
 	}

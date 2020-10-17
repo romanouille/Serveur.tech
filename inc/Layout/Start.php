@@ -34,9 +34,37 @@ if ($_SERVER["REMOTE_ADDR"] != "127.0.0.1") {
 		<link href="css/style.min.css" rel="stylesheet">
 		<link href="css/filter.css" rel="stylesheet">
 		<!-- Custom color styles -->
-		<link href="css/colors/pink.css" rel="stylesheet" title="pink" media="none" onload="if(media!='all')media='all'"/>
-		<link href="css/colors/blue.css" rel="stylesheet" title="blue" media="none" onload="if(media!='all')media='all'"/>
-		<link href="css/colors/green.css" rel="stylesheet" title="green" media="none" onload="if(media!='all')media='all'"/>
+		<link href="css/colors/pink.css" rel="stylesheet" title="pink" media="none" onload="if(media!='all')media='all'">
+		<link href="css/colors/blue.css" rel="stylesheet" title="blue" media="none" onload="if(media!='all')media='all'">
+		<link href="css/colors/green.css" rel="stylesheet" title="green" media="none" onload="if(media!='all')media='all'">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://<?=$_SERVER["HTTP_HOST"]?>">
+		<meta property="og:description" content="Hébergeur de serveur Minecraft français incluant panneau d'administration, anti-DDoS, FTP et MySQL.">
+		<meta property="og:image" content="/assets/media/logos/logo.png">
+		<script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "Hébergement de serveurs Minecraft",
+      "image": [
+        "https://serveur.tech/assets/media/logos/logo.png"
+       ],
+      "description": "Hébergeur de serveur Minecraft français incluant panneau d'administration, anti-DDoS, FTP et MySQL.",
+      "sku": "mc",
+      "mpn": "mc",
+      "brand": {
+        "@type": "Brand",
+        "name": "Serveur.tech"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "url": "https://serveur.tech/",
+        "priceCurrency": "EUR",
+        "lowPrice": "0.00",
+		"highPrice": "14.99"
+      }
+    }
+    </script>
 	</head>
 	<body>
 		<div id="spinner-area">

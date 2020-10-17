@@ -6,7 +6,7 @@ require "inc/Init.php";
 require "inc/MariaDB.class.php";
 require "inc/Server.class.php";
 
-if (!isset($user) || !$session["2fa"]) {
+if (!isset($user) || !$session["has2fa"]) {
 	header("Location: /Auth.php");
 	exit;
 }

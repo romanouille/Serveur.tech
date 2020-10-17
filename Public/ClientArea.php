@@ -99,7 +99,7 @@ if (!empty($servers)) {
 					</span>
 					<div class="d-flex flex-column text-dark-75">
 						<span class="font-weight-bolder font-size-sm">CPU</span>
-						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$server["type"]]["cpu"]?>x</span><?=$offers[$server["type"]]["price"] > 0 ? "4" : "2.4"?>GHz</span>
+						<span class="font-weight-bolder font-size-h5"><span class="text-dark-50 font-weight-bold"><?=$offers[$server["type"]]["cpu"]?>x</span>4GHz</span>
 					</div>
 				</div>
 				<!--end: Item-->

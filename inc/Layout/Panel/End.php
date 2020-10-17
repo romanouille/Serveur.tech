@@ -13,8 +13,8 @@
 		<!--end::Copyright-->
 		<!--begin::Nav-->
 		<div class="nav nav-dark order-1 order-md-2">
-			<a href="/legal" class="nav-link pr-3 pl-0">Mentions légales</a>
-			<a href="https://reseau.io" target="_blank" class="nav-link px-3">Reseau.io</a>
+			<!--<a href="/legal" class="nav-link pr-3 pl-0">Mentions légales</a>
+			<a href="https://reseau.io" target="_blank" class="nav-link px-3">Reseau.io</a>-->
 		</div>
 		<!--end::Nav-->
 	</div>

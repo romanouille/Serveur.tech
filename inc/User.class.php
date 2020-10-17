@@ -522,7 +522,7 @@ class User {
 		return $data;
 	}
 	
-	public function createSession(bool $has2fa = true, bool $admin = false) : bool {
+	public function createSession(bool $has2fa = false, bool $admin = false) : bool {
 		global $db;
 		
 		$sessionName = sha1(random_bytes(32).microtime(1).$this->phone);
@@ -563,6 +563,15 @@ class User {
 		global $db;
 		
 		$query = $db->prepare("UPDATE users_sessions SET has2fa = 1 WHERE session = :session");
+		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
+		
+		return $query->execute();
+	}
+	
+	public function setSessionAsAdmin() : bool {
+		global $db;
+		
+		$query = $db->prepare("UPDATE users_sessions SET admin = 1 WHERE session = :session");
 		$query->bindValue(":session", $_COOKIE["session"], PDO::PARAM_STR);
 		
 		return $query->execute();

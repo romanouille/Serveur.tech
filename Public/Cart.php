@@ -24,6 +24,13 @@ if (!Server::isAvailable($_GET["type"])) {
 	exit;
 }
 
+if ($offers[$_GET["type"]]["price"] == 0 && $user->hasFreeServer()) {
+	http_response_code(403);
+	$errorMessage = "Vous possédez déjà un serveur gratuit.";
+	require "inc/Pages/Error.php";
+	exit;
+}
+
 if (count($_POST) > 0) {
 	if ($offers[$_GET["type"]]["price"] > 0) {
 		$paypal = new Paypal($config["paypal"]["client_id"], $config["paypal"]["secret"]);

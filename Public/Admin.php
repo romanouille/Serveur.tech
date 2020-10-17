@@ -201,8 +201,51 @@ ul {
 		<div id="content">
 			<div class="block">
 				Votre IP est whitelistée (<?=$_SERVER["REMOTE_ADDR"]?>)
-				
             </div>
+			
+			<div class="block">
+				<table class="task-details">
+					<tbody>
+						<tr>
+							<td>Date d'ouverture
+							<td>17/10/2020
+						</tr>
+						
+						<tr>
+							<td>Type de tâche
+							<td>Amélioration
+						</tr>
+						
+						<tr>
+							<td>Catégorie
+							<td>Global
+						</tr>
+						
+						<tr>
+							<td>État
+							<td>Fermé
+						</tr>
+					</tbody>
+				</table>
+				
+				<p>					
+					Ce soir, il a été fait :<br><br>
+					
+					<ul>
+						<li>Refonte intégrale du système de sessions du site, le système de sessions natif de PHP ne fonctionnant pas correctement sur le serveur de production
+						<li>Révision du code source gérant la double-authentification
+						<li>Modification du système d'authentification en tant qu'administrateur
+						<li>Mise en production des machines virtuelles destinées aux serveurs de jeu (3 hôtes au total pour 24 machines virtuelles)
+					</ul>
+					<br><br>
+					
+					A faire :<br>
+					<ul>
+						<li>Mettre en place une authentification supplémentaire destinée aux administrateurs
+						<li>Soumettre le site à des beta-testeurs
+					</ul>
+				</p>
+			</div>
 			
 			<div class="block">
 				<table class="task-details">

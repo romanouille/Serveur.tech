@@ -65,10 +65,9 @@ if (count($_POST) > 0) {
 				if ($user->exists()) {
 					if ($user->getValidationCode() == $_POST["code"]) {
 						$user->changePassword($_POST["password"]);
-						$userProfile = $user->getProfile();
-						$user->createSession($userProfile["has2fa"], $userProfile["admin"]);
+						$user->createSession(true);
 						
-						header("Location: /");
+						header("Location: /ClientArea.php");
 						exit;
 					} else {
 						$messages[] = "Le code spécifié est incorrect.";

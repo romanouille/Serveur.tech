@@ -83,7 +83,7 @@ if (isset($messages) && !empty($messages)) {
 	Mot de passe : <b><?=$serverConfig["mysql_password"]?></b>
 	<br><br>
 	
-	<a href="https://<?=$offers[$serverConfig["type"]]["price"] > 0 ? "sql2.serveur.tech" : "sql1.serveur.tech"?>" class="btn btn-light-primary font-weight-bold btn-sm" target="_blank">Cliquez ici pour accéder à phpMyAdmin</a>
+	<a href="https://sql1.serveur.tech/" class="btn btn-light-primary font-weight-bold btn-sm" target="_blank">Cliquez ici pour accéder à phpMyAdmin</a>
 	<br><br>
 	
 	<form method="post">
