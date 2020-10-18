@@ -17,12 +17,6 @@ require "inc/Layout/Panel/Start.php";
 ?>
 <!--begin::Container-->
 <div class=" container ">
-	<div class="alert alert-info">
-		Voici les identifiants PayPal de test :<br><br>
-		
-		Adresse e-mail : <b>sb-dxcf5792106@personal.example.com</b><br>
-		Mot de passe : <b>d2r7UIl$</b>
-	</div>
 <?php
 if (!empty($servers)) {
 	foreach ($servers as $server) {

@@ -1,41 +1,9 @@
 <?php
-$betapass = "OpX234";
-
-if (php_sapi_name() != "cli") {
-	if (!isset($_COOKIE["betapass"]) || $_COOKIE["betapass"] != $betapass) {
-		if (isset($_POST["betapass"])) {
-			if ($_POST["betapass"] == $betapass) {
-				setcookie("betapass", $betapass);
-				header("Location: {$_SERVER["REQUEST_URI"]}");
-				exit;
-			}
-		}
-		
-		http_response_code(401);
-?>
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<title>Accès à la bêta fermée</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<style>
-			* {
-				font-family:Courier
-			}
-		</style>
-	</head>
-	
-	<body>
-		<h1>Accès à la bêta fermée</h1>
-		
-		<form method="post">
-			Entrez le mot de passe : <input type="password" name="betapass" placeholder="Mot de passe">&nbsp;<input type="submit">
-		</form>
-	</body>
-</html>
-<?php
-	exit;
+if (isset($_SERVER["REMOTE_ADDR"])) {
+	if (!in_array($_SERVER["REMOTE_ADDR"], ["127.0.0.1", "193.251.51.117"])) {
+		http_response_code(403);
+		header("Content-Type: text/plain");
+		exit("Access denied");
 	}
 }
 
@@ -44,8 +12,7 @@ require "inc/Captcha.class.php";
 require "inc/Functions.php";
 require "inc/User.class.php";
 
-//$dev = PHP_OS == "WINNT";
-$dev = true;
+$dev = PHP_OS == "WINNT";
 
 if (php_sapi_name() != "cli") {
 	ob_start();
@@ -87,24 +54,24 @@ $countries = [
 
 $offers = [
 	1 => [
-		"ram" => 1,
+		"ram" => 4,
 		"cpu" => 1,
-		"ssd" => 10,
-		"price" => 0,
+		"ssd" => 25,
+		"price" => 4.99,
 		"location" => "France"
 	],
 	2 => [
-		"ram" => 4,
+		"ram" => 8,
 		"cpu" => 2,
 		"ssd" => 20,
-		"price" => 14.99,
+		"price" => 9.99,
 		"location" => "France"
 	],
 	3 => [
-		"ram" => 8,
-		"cpu" => 3,
-		"ssd" => 40,
-		"price" => 14.99,
+		"ram" => 16,
+		"cpu" => 4,
+		"ssd" => 100,
+		"price" => 19.99,
 		"location" => "France"
 	]
 ];

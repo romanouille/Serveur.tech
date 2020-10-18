@@ -17,7 +17,7 @@ require "inc/Layout/Start.php";
 						<div class="heading">
 							Serveurs Minecraft
 						</div>
-						<h3 class="subheading">Votre serveur Minecraft hébergé à partir de <b class="c-pink">9,99€/mois</b><br>
+						<h3 class="subheading">Votre serveur Minecraft hébergé à partir de <b class="c-pink">4,99€/mois</b><br>
 						</h3>
 						<a href="#pricing" class="btn btn-default-yellow-fill mr-3">Voir les prix</a>
 						<!--<a href="#" class="btn btn-default-pink-fill">Learn more</a>-->
@@ -37,13 +37,13 @@ require "inc/Layout/Start.php";
 						<img class="svg mb-3" src="fonts/svg/dedicated.svg" alt="">
 						<div class="title">MC-1</div>
 						<div class="fromer"></div>
-						<div class="price">0,00<sup>€</sup> <span class="period">/mois</span></div>
+						<div class="price"><?=$offers[1]["price"]?><sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>1x 4GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>1 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>10 Go SSD</span></li>
-						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Non inclus</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span><?=$offers[1]["cpu"]?>x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span><?=$offers[1]["ram"]?> Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span><?=$offers[1]["ssd"]?> Go SSD</span></li>
+						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Inclus</span></li>
 						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
 						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>
 						<li><a href="/Cart.php?type=1" class="btn btn-default-yellow-fill question">Commander</a>
@@ -56,12 +56,12 @@ require "inc/Layout/Start.php";
 						<img class="svg mb-3" src="fonts/svg/dedicated.svg" alt="">
 						<div class="title">MC-2</div>
 						<div class="fromer"></div>
-						<div class="price">9,99<sup>€</sup> <span class="period">/mois</span></div>
+						<div class="price"><?=$offers[2]["price"]?><sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>2x 4GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>4 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>20 Go SSD</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span><?=$offers[2]["cpu"]?>x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span><?=$offers[2]["cpu"]?> Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span><?=$offers[2]["ssd"]?> Go SSD</span></li>
 						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Inclus</span></li>
 						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
 						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>
@@ -75,12 +75,12 @@ require "inc/Layout/Start.php";
 						<img class="svg mb-3" src="fonts/svg/dedicated.svg" alt="">
 						<div class="title">MC-3</div>
 						<div class="fromer"></div>
-						<div class="price">14,99<sup>€</sup> <span class="period">/mois</span></div>
+						<div class="price"><?=$offers[3]["price"]?><sup>€</sup> <span class="period">/mois</span></div>
 					</div>
 					<ul class="list-info">
-						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span>3x 4GHz</span></li>
-						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span>8 Go</span></li>
-						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span>40 Go SSD</span></li>
+						<li><i class="icon-cpu"></i> <span class="c-purple">CPU</span><br> <span><?=$offers[3]["cpu"]?>x 4GHz</span></li>
+						<li><i class="icon-ram"></i> <span class="c-purple">RAM DDR4</span><br> <span><?=$offers[3]["ram"]?> Go</span></li>
+						<li><i class="icon-drives"></i> <span class="c-purple">Disque</span><br> <span><?=$offers[3]["ssd"]?> Go SSD</span></li>
 						<li><i class="icon-inverse"></i> <span class="c-purple">MySQL</span><br> <span>Inclus</span></li>
 						<li><i class="icon-protection"></i> <span class="c-purple">Anti-DDoS</span><br> <span>Game</span></li>
 						<li><i class="icon-location"></i> <span class="c-purple">Localisation</span><br> <span>France</span></li>

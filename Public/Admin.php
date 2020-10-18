@@ -1,14 +1,27 @@
 <?php
-if (!in_array($_SERVER["REMOTE_ADDR"], ["127.0.0.1", "78.252.134.23", "193.251.51.117"])) {
-	header("Content-Type: text/plain");
+set_include_path("../");
+chdir("../");
+
+require "inc/Init.php";
+
+if (!isset($user) || !$session["has2fa"]) {
+	http_response_code(401);
+	$errorMessage = "Vous devez être connecté afin d'accéder à cette page.";
+	require "inc/Pages/Error.php";
+	exit;
+}
+
+if (!$session["admin"]) {
 	http_response_code(403);
-	exit("403 Forbidden");
+	$errorMessage = "Vous devez être authentifié en tant qu'administrateur afin d'accéder à cette page.";
+	require "inc/Pages/Error.php";
+	exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<title>Admin - Reseau.io</title>
+		<title>Admin - Serveur.tech</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
@@ -192,7 +205,7 @@ ul {
 			
 			<ul id="tabs">
 				<li><a href="/Admin.php" class="active" title="Liste des tâches">Liste des tâches</a>
-				<li><a href="/AdminTicketsList.php" class="active" title="Tickets">Tickets</a>
+				<li><a href="/ClientArea.php" class="active" title="Retour au panel">Retour au panel</a>
 			</ul>
 		</div>
 		
@@ -200,8 +213,51 @@ ul {
 		
 		<div id="content">
 			<div class="block">
-				Votre IP est whitelistée (<?=$_SERVER["REMOTE_ADDR"]?>)
+				Vous êtes authentifié en tant qu'administrateur.
             </div>
+			
+			<div class="block">
+				<table class="task-details">
+					<tbody>
+						<tr>
+							<td>Date d'ouverture
+							<td>17/10/2020
+						</tr>
+						
+						<tr>
+							<td>Type de tâche
+							<td>Amélioration
+						</tr>
+						
+						<tr>
+							<td>Catégorie
+							<td>Global
+						</tr>
+						
+						<tr>
+							<td>État
+							<td>Fermé
+						</tr>
+					</tbody>
+				</table>
+				
+				<p>					
+					Aujourd'hui, suite à plusieurs retours de différents testeurs, il a été fait :<br><br>
+					
+					<ul>
+						<li>Correction d'un bug au niveau du prix de l'offre MC-2
+						<li>Correction d'un bug lors de la validation d'un paiement, celui-ci était lié au fait que le script était relié à l'ancien système de sessions
+						<li>Correction d'un bug au niveau du générateur de server.properties, celui-ci était lié au fait que l'enregistrement du gamemode était "trop" sécurisé provoquant en conséquence un enregistrement vierge de cette variable
+					</ul>
+					<br><br>
+					
+					Il a également été fait :<br>
+					<ul>
+						<li>Mise en place d'une authentification supplémentaire destinée aux administrateurs
+						<li>Liaison entre les tâches et le site
+					</ul>
+				</p>
+			</div>
 			
 			<div class="block">
 				<table class="task-details">

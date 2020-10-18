@@ -49,7 +49,7 @@ if ($offers[$paymentData["offer_type"]]["price"] > 0) {
 
 if ($result) {
 	if (!$isRenew) {
-		if (Server::isAvailable($paymentData["offer_type"]) && Server::create($paymentData["offer_type"], $_SESSION["phone"])) {
+		if (Server::isAvailable($paymentData["offer_type"]) && Server::create($paymentData["offer_type"], $session["owner"])) {
 			if ($offers[$paymentData["offer_type"]]["price"] > 0) {
 				$user->createInvoice($paymentData["offer_type"], $offers[$paymentData["offer_type"]]["price"]);
 			}

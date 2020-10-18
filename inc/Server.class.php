@@ -122,7 +122,7 @@ class Server {
 		bool $enableJmxMonitoring = false,
 		int $rconPort = 25575,
 		string $levelSeed = "",
-		string $gamemode = "survival",
+		int $gamemode = 0,
 		bool $enableCommandBlock = false,
 		bool $enableQuery = false,
 		string $generatorSettings = "",
@@ -172,7 +172,7 @@ class Server {
 		$this->ssh->exec("echo enable-jmx-monitoring=".($enableJmxMonitoring ? "true" : "false")." > server.properties");
 		$this->ssh->exec("echo rcon.port=$rconPort >> server.properties");
 		$this->ssh->exec("echo level-seed=".normalizeString($levelSeed, "abcdefghijklmnopqrstuvwxyz0123456789")." >> server.properties");
-		$this->ssh->exec("echo gamemode=".normalizeString($gamemode)." >> server.properties");
+		$this->ssh->exec("echo gamemode=$gamemode >> server.properties");
 		$this->ssh->exec("echo enable-command-block=".($enableCommandBlock ? "true" : "false")." >> server.properties");
 		$this->ssh->exec("echo enable-query=".($enableQuery ? "true" : "false")." >> server.properties");
 		$this->ssh->exec("echo generator-settings=".normalizeString($generatorSettings, "abcdefghijlmnopqrstuvwxyz0123456789:_()")." >> server.properties");
@@ -398,7 +398,7 @@ class Server {
 			"level-name" => (string)$data["level-name"],
 			"level-seed" => (string)$data["level-seed"],
 			"level-type" => (string)$data["level-type"],
-			"gamemode" => (bool)$data["gamemode"],
+			"gamemode" => (int)$data["gamemode"],
 			"white-list" => (bool)$data["white-list"],
 			"online-mode" => (bool)$data["online-mode"],
 			"generate-structures" => (bool)$data["generate-structures"],

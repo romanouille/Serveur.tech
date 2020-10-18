@@ -60,7 +60,7 @@ if ($_SERVER["REMOTE_ADDR"] != "127.0.0.1") {
         "@type": "AggregateOffer",
         "url": "https://serveur.tech/",
         "priceCurrency": "EUR",
-        "lowPrice": "0.00",
+        "lowPrice": "4.99",
 		"highPrice": "14.99"
       }
     }

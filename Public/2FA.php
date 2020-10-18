@@ -92,7 +92,13 @@ if (isset($messages) && !empty($messages)) {
 							</div>
 						</form>
 					</div>
+<?php
+if ($dev) {
+?>
 					<b>DEBUG</b> : le code de validation est <b><?=$user->getValidationCode()?></b>
+<?php
+}
+?>
 				</div>
 			</div>
 		</div>

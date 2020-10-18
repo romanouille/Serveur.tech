@@ -15,6 +15,7 @@ foreach ($data as $value) {
 	if ($server->isStarted()) {
 		$server->rconAuth();
 		$server->stop();
+		sleep(1);
 	}
 	
 	$server->start();
